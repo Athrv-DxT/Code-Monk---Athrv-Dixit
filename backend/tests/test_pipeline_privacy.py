@@ -8,6 +8,7 @@ class TestPipelinePrivacyIntegration(unittest.TestCase):
     def test_pipeline_pii_redaction(self):
         # Force PII masking to True
         settings.ENABLE_PII_MASKING = True
+        settings.DEMO_OFFLINE_MODE = True
         
         pii_content = (
             "NOTICE OF ADMINISTRATIVE RECOVERY\n\n"
@@ -16,7 +17,8 @@ class TestPipelinePrivacyIntegration(unittest.TestCase):
             "Please pay immediately to avoid legal actions under case number WP/4820/2026."
         )
         
-        result = run_pipeline(
+        import asyncio
+        result = asyncio.run(run_pipeline(
             content=pii_content,
             audience_profile_dict={
                 "role": "general_adult",
@@ -30,29 +32,27 @@ class TestPipelinePrivacyIntegration(unittest.TestCase):
                 "language": "en",
                 "tts_output": False
             }
-        )
+        ))
         
         # Verify run succeeded
         self.assertIn("run_id", result)
         run_id = result["run_id"]
         
         # Test PII reinserter manually to verify it restores original values
-        from app.privacy.vault import pii_vault
+        from app.privacy.vault import PIIVault
         from app.privacy.reinserter import PIIReinserter
         
+        vault = PIIVault()
         # Temporarily populate vault for manual testing of the restoration logic
-        token_name = pii_vault.store("Rahul Sharma", "PERSON")
-        token_aadhaar = pii_vault.store("3668-0275-3381", "AADHAAR")
+        token_name = vault.store("PERSON", "Rahul Sharma")
+        token_aadhaar = vault.store("AADHAAR", "3668-0275-3381")
         
         test_masked_text = f"Notice for {token_name} (Aadhaar: {token_aadhaar})"
         reinserter = PIIReinserter()
-        restored_text = reinserter.restore(test_masked_text)
+        restored_text = reinserter.reinsert(test_masked_text, vault)
         
         self.assertIn("Rahul Sharma", restored_text)
         self.assertIn("3668-0275-3381", restored_text)
-        
-        # Clear manual vault entries
-        pii_vault.clear()
         
         # Check logs to ensure PII did not leak into logging
         log_file_path = os.path.join(settings.LOG_DIR, f"agent_run_{run_id}.md")

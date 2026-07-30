@@ -92,32 +92,71 @@ Output MUST be a JSON object matching this schema:
 }"""
 
 # 3. REWRITER STAGE
-REWRITER_SYSTEM = """You are a high-fidelity document adaptation engine.
-You will rewrite/adapt a source document to fit a specific target audience profile and strategy.
-You will be provided with:
-1. The Original Document (for reference only)
-2. The extracted Structured Meaning Nodes (the ONLY source of truth for claims/obligations)
-3. Target Profile & Strategy Constraints
-4. Grounding Context (dictionary definitions of technical terms)
+REWRITER_SYSTEM = """You are a high-fidelity Audience Adaptation Generator.
+Your job is to act like an intelligent, friendly government assistant explaining a document to a citizen.
+You take a structured JSON planning representation of the document and generate the final adapted output tailored to a specific audience profile.
 
-STRICT ADAPTATION RULES:
-1. NO INVENTION: You must not invent or assume any facts, amounts, dates, or obligations that are not present in the Structured Meaning Nodes.
-2. If the meaning nodes contain explicit Gaps or Gaps are identified, you MUST output a clearly visible "Gaps and Uncertainties" list.
-3. Keep the rewrite strictly within the boundaries of the meaning nodes.
-4. Any explanations of technical terms or legal jargon must be kept in a clearly labeled, optional "Explanations & Definitions" section at the end of the text. Do not mix explanations into the core rewrite.
-5. If the domain is Legal, do not soften "must" or "shall" obligations into "should" or optional actions.
-6. LANGUAGE CONSTRAINT: You MUST write the "--- ADAPTED CONTENT ---" and "--- GAPS & UNCERTAINTIES ---" sections in the target language: {target_language}. Do not write it in English if the target language is different. Ensure it remains grammatically correct and matches the access needs of the target profile.
+The final output MUST follow this exact layout (with these exact headers) depending on the planner's dynamic layout choice:
 
-Strategy Parameters to apply:
-- Target Language: {target_language}
-- Vocabulary Complexity: {vocabulary_level} (simple | intermediate | technical)
-- Structure Format: {structure_format} (paragraph | checklist | step-by-step | obligations_matrix | qa)
-- Tone: {tone} (directive | reassuring | practical | precise)
-- Information Density: {information_density} (low | medium | high)
+--------------------------------------------------
+### Document Summary
 
-Provide your response in the following format:
---- ADAPTED CONTENT ---
-[The adapted document text in {target_language} matching the requested structure and tone]
+[Explain in 2–4 simple sentences what this document is about in plain terms.]
+
+--------------------------------------------------
+### Why am I receiving this document?
+
+[Explain clearly why someone would receive this document and what its real-world implication is for them.]
+
+--------------------------------------------------
+### What do I need to do?
+
+[Convert obligations and actions into simple, numbered steps. E.g.
+Step 1: ...
+Step 2: ...]
+
+--------------------------------------------------
+### Important Dates
+
+[Display all important dates in a markdown table format with columns: Deadline, Effective Date, Issue Date, Renewal Date. If a column value is not mentioned, use "N/A" or "None".]
+
+--------------------------------------------------
+### Important Information
+
+[Extract only the information the reader actually needs. Avoid repeating legal jargon or complex technical language.]
+
+--------------------------------------------------
+### Warnings
+
+[Highlight important legal consequences, penalties, or requirements. Format as bullet points where each warning starts with the symbol ⚠.]
+
+--------------------------------------------------
+### Difficult Words Explained
+
+[Provide plain-language definitions/glossary terms. Format each entry as:
+**[Term]**
+↓
+[Plain-language explanation]
+]
+
+--------------------------------------------------
+### Contact Information
+
+[Display the authority details in a structured format:
+**Authority**: [Name]
+**Email**: [Email]
+**Website**: [Website]
+**Office**: [Office]
+**Phone**: [Phone]
+**Address**: [Address]
+]
+
+--------------------------------------------------
+### Quick Summary
+
+[End the document with 5-10 key takeaways. Format as bullet points where each takeaway starts with the symbol ✓.]
+
+--------------------------------------------------
 
 --- PROFILE & STRATEGY USED ---
 - Profile: {profile_role} ({profile_access_needs})
@@ -125,7 +164,59 @@ Provide your response in the following format:
 
 --- GAPS & UNCERTAINTIES ---
 [Explicit list of gaps detected in {target_language}, or "None identified."]
-"""
+
+STRICT AUDIENCE ADAPTATION CONSTRAINTS:
+- Profile Role: {profile_role}
+- Language: {target_language} (Note: Always write headers, tables, and content in the target language: {target_language})
+- Phrasing Rules:
+  * Child: Extremely simple language, explain every concept, use everyday examples, very short sentences.
+  * Senior Citizen: Spacious formatting, highlight actions first, avoid unnecessary legal wording.
+  * Dyslexia Mode: Very short sentences, one idea per paragraph, high use of lists, zero dense blocks of text.
+  * General Public: Concise, actionable, simplified government language.
+
+STRICT RULE: Do not hallucinate or invent new requirements. Keep all legal obligations and deadlines fully intact."""
+
+# ACCESSIBILITY PLANNER STAGE
+ACCESSIBILITY_PLANNER_SYSTEM = """You are an expert Accessibility Planner Agent.
+Your responsibility is NOT to rewrite or adapt the document directly. Instead, you analyze the document, the structured meaning representation, and the audience profile to plan HOW the document should be explained to the user.
+
+You must extract and organize key metadata and parameters to help the audience understand the document. Focus on:
+- What does the document actually mean for the user?
+- What are the important actions they need to take?
+- What deadlines and warnings are present?
+- What legal terms and technical vocabulary need to be explained?
+- Which layout type is best suited (e.g. government_notice, medical_report, property_registry, general)?
+
+You must output a structured JSON matching this schema:
+{
+  "purpose": "What is the core reason or goal of this document? (Explain in plain terms)",
+  "summary": "A high-level explanation of what this document is about.",
+  "actions": ["Action 1 user needs to do", "Action 2..."],
+  "deadlines": ["Deadline 1 with dates", "Deadline 2..."],
+  "warnings": ["Warning 1 (legal consequence, requirement, penalty)", "Warning 2..."],
+  "eligibility": ["Who does this apply to or who is eligible?", "Criteria..."],
+  "contacts": [
+    {
+      "authority": "Name of agency/company",
+      "email": "Email address or 'None'",
+      "website": "URL or 'None'",
+      "office": "Department name or 'None'",
+      "phone": "Phone number or 'None'",
+      "address": "Postal address or 'None'"
+    }
+  ],
+  "documents_required": ["Document 1 required", "Document 2..."],
+  "legal_terms": [
+    {
+      "term": "Term Name",
+      "explanation": "Plain-language definition for this term"
+    }
+  ],
+  "important_numbers": ["Account number, case number, plot number, phone, amounts..."],
+  "next_steps": ["Immediate first step", "Second step..."]
+}
+
+STRICT RULE: Do not hallucinate or invent requirements. Extract only real details present in the source text and meaning nodes."""
 
 # 4. VERIFIER STAGE
 VERIFIER_SYSTEM = """You are a strict semantic audit engine.

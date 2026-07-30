@@ -2,10 +2,11 @@ import os
 import shutil
 import logging
 import tempfile
+import json
 from fastapi import APIRouter, UploadFile, File, HTTPException
-from fastapi.responses import FileResponse, PlainTextResponse
+from fastapi.responses import FileResponse, PlainTextResponse, StreamingResponse
 from app.api.schemas import AdaptRequest, AdaptResponse, FetchUrlRequest
-from app.agents.orchestrator import run_pipeline
+from app.agents.orchestrator import run_pipeline, run_pipeline_stream
 from app.graph.neo4j_client import get_driver, get_meaning_representation
 from app.voice.stt_whisper import transcribe_audio
 from app.config import settings
@@ -15,15 +16,15 @@ import re
 logger = logging.getLogger("meridian.api")
 router = APIRouter(prefix="/api/v1")
 
-@router.post("/adapt", response_model=AdaptResponse)
-def adapt_document(request: AdaptRequest):
+@router.post("/adapt")
+async def adapt_document(request: AdaptRequest):
     """
     Core pipeline endpoint. Takes a document, extracts semantic representation,
     stores in Neo4j, simplifies/adapts to audience and verifies fidelity.
     """
     try:
         logger.info("Received request on /adapt")
-        result = run_pipeline(
+        result = await run_pipeline(
             content=request.content,
             audience_profile_dict=request.audience_profile or {},
             options=request.options.model_dump() if request.options else {},
@@ -33,6 +34,27 @@ def adapt_document(request: AdaptRequest):
     except Exception as e:
         logger.error(f"Error executing adaptation: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/adapt-stream")
+async def adapt_document_stream(request: AdaptRequest):
+    """
+    Progressive section-by-section streaming adaptation endpoint.
+    """
+    logger.info("Received streaming request on /adapt-stream")
+    async def event_generator():
+        try:
+            async for update in run_pipeline_stream(
+                content=request.content,
+                audience_profile_dict=request.audience_profile or {},
+                options=request.options.model_dump() if request.options else {},
+                voice_narration=request.voice_narration
+            ):
+                yield json.dumps(update) + "\n"
+        except Exception as e:
+            logger.error(f"Error in streaming generator: {e}")
+            yield json.dumps({"status": "error", "detail": str(e)}) + "\n"
+
+    return StreamingResponse(event_generator(), media_type="application/x-ndjson")
 
 @router.get("/health")
 def health_check():

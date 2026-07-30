@@ -141,6 +141,31 @@ class LLMProvider:
         else:
             raise ValueError(f"Unknown provider type: {self.provider_type}")
 
+    def execute_call_stream(
+        self, 
+        prompt: str, 
+        system_instruction: Optional[str] = None
+    ):
+        """
+        Executes streaming client API calls.
+        """
+        if self.provider_type == "gemini":
+            from app.llm.gemini_client import call_gemini_stream
+            return call_gemini_stream(
+                prompt=prompt,
+                system_instruction=system_instruction,
+                api_key=self.api_key
+            )
+        elif self.provider_type == "groq":
+            from app.llm.groq_client import call_groq_stream
+            return call_groq_stream(
+                prompt=prompt,
+                system_instruction=system_instruction,
+                api_key=self.api_key
+            )
+        else:
+            raise ValueError(f"Unknown provider type: {self.provider_type}")
+
 
 class LLMFailoverManager:
     def __init__(self):
@@ -258,6 +283,85 @@ class LLMFailoverManager:
         # If all providers failed
         all_errs = " | ".join(errors)
         logger.critical(f"Failover Event: All configured LLM providers failed. Details: {all_errs}")
+        raise RuntimeError(f"All configured LLM providers failed. Details: {all_errs}")
+
+    def execute_with_failover_stream(
+        self,
+        prompt: str,
+        system_instruction: Optional[str] = None
+    ):
+        """
+        Executes a streaming LLM call with Round-Robin, Circuit Breakers, and failover if connection fails.
+        Yields Tuple[chunk, provider_name].
+        """
+        import random
+        if not self.providers:
+            self.initialize_providers()
+            
+        if not self.providers:
+            raise RuntimeError("No LLM providers are configured.")
+            
+        num_providers = len(self.providers)
+        errors = []
+        
+        start_idx = self.round_robin_index
+        
+        for p_offset in range(num_providers):
+            provider_idx = (start_idx + p_offset) % num_providers
+            provider = self.providers[provider_idx]
+            
+            if not provider.check_circuit():
+                continue
+                
+            self.round_robin_index = (provider_idx + 1) % num_providers
+            logger.info(f"Active streaming provider selected: {provider.name} (Round-robin index: {provider_idx})")
+            
+            max_attempts = 4
+            base_delay = 1.0
+            max_delay = 8.0
+            
+            for attempt in range(1, max_attempts + 1):
+                start_time = time.time()
+                try:
+                    stream_gen = provider.execute_call_stream(
+                        prompt=prompt,
+                        system_instruction=system_instruction
+                    )
+                    
+                    iterator = iter(stream_gen)
+                    try:
+                        first_chunk = next(iterator)
+                    except StopIteration:
+                        first_chunk = ""
+                        
+                    yield (first_chunk, provider.name)
+                    
+                    for chunk in iterator:
+                        yield (chunk, provider.name)
+                        
+                    latency = time.time() - start_time
+                    provider.record_success(latency)
+                    return
+                    
+                except Exception as e:
+                    err_msg = str(e)
+                    errors.append(f"{provider.name} (attempt {attempt}): {err_msg}")
+                    logger.warning(f"Streaming attempt {attempt} failed for provider {provider.name}: {err_msg}")
+                    
+                    provider.record_failure(err_msg)
+                    
+                    if attempt < max_attempts:
+                        delay = min(max_delay, base_delay * (2 ** (attempt - 1)))
+                        jitter = random.uniform(0, 0.1 * delay)
+                        sleep_time = delay + jitter
+                        logger.info(f"Retrying streaming call in {sleep_time:.2f} seconds...")
+                        time.sleep(sleep_time)
+                    else:
+                        logger.error(f"Provider {provider.name} streaming attempt failed completely after {max_attempts} attempts.")
+                        break
+                        
+        all_errs = " | ".join(errors)
+        logger.critical(f"Failover Event (Stream): All configured LLM providers failed. Details: {all_errs}")
         raise RuntimeError(f"All configured LLM providers failed. Details: {all_errs}")
 
     def get_providers_status(self) -> List[Dict[str, Any]]:
