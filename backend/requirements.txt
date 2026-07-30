@@ -12,3 +12,4 @@ soundfile>=0.12.1
 python-multipart>=0.0.6
 faster-whisper>=0.7.0
 python-dotenv>=1.0.0
+pypdf>=3.17.0

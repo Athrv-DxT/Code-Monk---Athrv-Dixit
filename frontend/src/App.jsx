@@ -1120,11 +1120,11 @@ export default function App() {
               >
                 <FileText size={36} style={{ color: 'var(--secondary-accent)', marginBottom: '0.75rem' }} />
                 <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                  {uiLanguage === 'hi' ? 'फ़ाइल चुनने के लिए यहाँ क्लिक करें (HTML, HTM, TXT)' : 'Click to select and upload document (HTML, HTM, TXT)'}
+                  {uiLanguage === 'hi' ? 'फ़ाइल चुनने के लिए यहाँ क्लिक करें (HTML, HTM, TXT, PDF)' : 'Click to select and upload document (HTML, HTM, TXT, PDF)'}
                 </p>
                 <input 
                   type="file" 
-                  accept=".html,.htm,.txt" 
+                  accept=".html,.htm,.txt,.pdf" 
                   style={{ display: 'none' }} 
                   id="file-upload-input"
                   onChange={handleFileUpload} 

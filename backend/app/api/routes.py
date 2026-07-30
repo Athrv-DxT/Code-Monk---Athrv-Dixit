@@ -174,20 +174,32 @@ def fetch_url(request: FetchUrlRequest):
 @router.post("/upload-file")
 async def upload_file(file: UploadFile = File(...)):
     """
-    Accepts text or HTML files, extracts, and returns the cleaned text content.
+    Accepts text, HTML, or PDF files, extracts, and returns the cleaned text content.
     """
     ext = os.path.splitext(file.filename)[1].lower()
-    if ext not in [".html", ".htm", ".txt"]:
-        raise HTTPException(status_code=400, detail="Only plain text (.txt) and HTML (.html) files are currently supported.")
+    if ext not in [".html", ".htm", ".txt", ".pdf"]:
+        raise HTTPException(status_code=400, detail="Only plain text (.txt), HTML (.html), and PDF (.pdf) files are supported.")
         
     try:
         logger.info(f"Processing uploaded file: {file.filename}")
         content_bytes = await file.read()
-        content_text = content_bytes.decode("utf-8", errors="ignore")
         
-        if ext in [".html", ".htm"]:
+        if ext == ".pdf":
+            import io
+            from pypdf import PdfReader
+            pdf_file = io.BytesIO(content_bytes)
+            reader = PdfReader(pdf_file)
+            text_parts = []
+            for page in reader.pages:
+                text = page.extract_text()
+                if text:
+                    text_parts.append(text)
+            cleaned_text = "\n".join(text_parts)
+        elif ext in [".html", ".htm"]:
+            content_text = content_bytes.decode("utf-8", errors="ignore")
             cleaned_text = clean_html(content_text)
         else:
+            content_text = content_bytes.decode("utf-8", errors="ignore")
             cleaned_text = content_text
             
         return {"text": cleaned_text}
