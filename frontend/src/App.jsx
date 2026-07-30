@@ -691,7 +691,9 @@ export default function App() {
           });
           const data = await res.json();
           if (data.text) {
-            setContent(prev => (prev ? prev + "\n" + data.text : data.text));
+            setContent(data.text);
+            speakText("Speech transcribed. Commencing adaptation.");
+            await handleAdapt(data.text);
           }
         } catch (e) {
           console.error(e);
@@ -916,33 +918,6 @@ export default function App() {
             <FileText size={20} />
             Source Document
           </h2>
-
-          {/* Voice Command Accessibility Card for Blind or Illiterate Users */}
-          <div className="glass" style={{ padding: '1rem', border: '1px solid var(--primary-accent)', background: 'var(--primary-glow)', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <h3 style={{ fontSize: '0.9rem', color: 'var(--secondary-accent)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Mic size={16} />
-              Voice-Command Accessibility (For Blind or Illiterate Users)
-            </h3>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-              Click to speak who you are and what you need (e.g. "I am an anxious patient, read this notice to me").
-            </p>
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-              {isRecordingNarration ? (
-                <button className="btn btn-primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }} onClick={stopRecordingNarration} onMouseEnter={() => speakText("Stop recording profile narration")}>
-                  <Square size={12} /> Stop Recording
-                </button>
-              ) : (
-                <button className="btn btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }} onClick={startRecordingNarration} onMouseEnter={() => speakText("Start recording profile narration")}>
-                  <Mic size={12} /> Record My Profile
-                </button>
-              )}
-              {voiceNarration && (
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-main)', flex: 1, padding: '0.3rem 0.5rem', background: 'rgba(0,0,0,0.2)', borderRadius: '4px', border: '1px solid var(--border-color)' }}>
-                  <strong>Narration:</strong> "{voiceNarration.slice(0, 45)}..."
-                </div>
-              )}
-            </div>
-          </div>
           
           <div className="form-group">
             <label onMouseEnter={() => speakText("Load Presets for Testing")}>Load Presets for Testing:</label>
@@ -990,19 +965,6 @@ export default function App() {
                 style={{ minHeight: '220px' }}
                 onMouseEnter={() => speakText("Document text box. Paste here.")}
               />
-              
-              {/* STT trigger button */}
-              <div style={{ position: 'absolute', bottom: '15px', right: '15px', zIndex: 10 }}>
-                {isRecording ? (
-                  <button className="btn btn-primary" style={{ padding: '0.5rem', borderRadius: '50%' }} onClick={stopRecording} onMouseEnter={() => speakText("Stop voice dictation")}>
-                    <Square size={16} />
-                  </button>
-                ) : (
-                  <button className="btn btn-secondary" style={{ padding: '0.5rem', borderRadius: '50%' }} onClick={startRecording} onMouseEnter={() => speakText("Start voice dictation")}>
-                    <Mic size={16} style={{ color: 'var(--secondary-accent)' }} />
-                  </button>
-                )}
-              </div>
             </div>
           )}
 
@@ -1048,12 +1010,59 @@ export default function App() {
             </div>
           )}
 
-          {isRecording && activeInputMode === 'text' && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'hsl(350, 80%, 55%)', fontSize: '0.875rem', marginBottom: '1rem' }}>
-              <div className="pulse-recording"></div>
-              {uiLanguage === 'hi' ? 'रिकॉर्डिंग... कृपया बोलें।' : 'Recording... Speak now.'}
-            </div>
-          )}
+          {/* Centered Voice Assistant Mic for Ingestion & Dictation */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', margin: '2rem 0 1.5rem 0', gap: '0.75rem' }}>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: '500' }}>
+              {uiLanguage === 'hi' ? 'बोलने और अनुकूलित करने के लिए माइक दबाएं' : 'Click to Speak & Adapt Document'}
+            </span>
+            {isRecording ? (
+              <button 
+                className="btn btn-primary" 
+                style={{ 
+                  width: '64px', 
+                  height: '64px', 
+                  borderRadius: '50%', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  background: 'hsl(350, 80%, 55%)',
+                  boxShadow: '0 0 20px hsl(350, 80%, 55%)',
+                  border: 'none',
+                  cursor: 'pointer'
+                }} 
+                onClick={stopRecording}
+                onMouseEnter={() => speakText("Stop recording")}
+              >
+                <Square size={24} style={{ color: 'white' }} />
+              </button>
+            ) : (
+              <button 
+                className="btn" 
+                style={{ 
+                  width: '64px', 
+                  height: '64px', 
+                  borderRadius: '50%', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  background: 'linear-gradient(135deg, var(--primary-accent), var(--secondary-accent))', 
+                  boxShadow: '0 0 15px var(--primary-accent)',
+                  border: 'none',
+                  cursor: 'pointer'
+                }} 
+                onClick={startRecording}
+                onMouseEnter={() => speakText("Start recording voice dictation")}
+              >
+                <Mic size={24} style={{ color: 'white' }} />
+              </button>
+            )}
+            {isRecording && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'hsl(350, 80%, 55%)', fontSize: '0.8rem' }}>
+                <div className="pulse-recording" style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'hsl(350, 80%, 55%)' }}></div>
+                {uiLanguage === 'hi' ? 'बोलें, सिस्टम अपने आप रुक जाएगा...' : 'Speaking... stop talking to auto-process'}
+              </div>
+            )}
+          </div>
 
           <button 
             className="btn btn-primary" 
