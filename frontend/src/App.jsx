@@ -386,15 +386,19 @@ export default function App() {
     } else if (txt.includes('hindi') || txt.includes('हिंदी')) {
       setUiLanguage('hi');
       speakText("स्क्रीन की भाषा अब हिंदी है।");
+      if (content.trim()) handleAdapt(content, 'hi');
     } else if (txt.includes('english') || txt.includes('अंग्रेजी')) {
       setUiLanguage('en');
       speakText("Screen language is now English.");
+      if (content.trim()) handleAdapt(content, 'en');
     } else if (txt.includes('spanish') || txt.includes('स्पैनिश') || txt.includes('español')) {
       setUiLanguage('es');
       speakText("Idioma de pantalla cambiado a español.");
+      if (content.trim()) handleAdapt(content, 'es');
     } else if (txt.includes('french') || txt.includes('फ्रेंच') || txt.includes('français')) {
       setUiLanguage('fr');
       speakText("Langue d'affichage changée en français.");
+      if (content.trim()) handleAdapt(content, 'fr');
     } else {
       speakText(`Understood command: ${commandText}`);
     }
@@ -463,7 +467,7 @@ export default function App() {
   };
 
   // Run the adaptation pipeline
-  const handleAdapt = async (forcedContent) => {
+  const handleAdapt = async (forcedContent, targetLang) => {
     const contentToUse = typeof forcedContent === 'string' ? forcedContent : content;
     if (!contentToUse.trim()) return;
     setLoading(true);
@@ -477,13 +481,15 @@ export default function App() {
       setIsPlayingAudio(false);
     }
 
+    const langToUse = targetLang || uiLanguage;
+
     const payload = {
       content: contentToUse,
       audience_profile: customProfile ? {
         role: role,
         domain_familiarity: "novice",
         cognitive_access_needs: needs,
-        preferred_language: uiLanguage,
+        preferred_language: langToUse,
         modality: modality
       } : null,
       voice_narration: voiceNarration || null,
@@ -491,7 +497,7 @@ export default function App() {
         generate_multiple_profiles: multipleProfiles,
         profiles: multipleProfiles ? ['general_adult', 'anxious', 'child', 'clinician'] : [selectedProfile],
         include_fidelity_note: true,
-        language: uiLanguage,
+        language: langToUse,
         enable_external_lookup: enableExternal,
         tts_output: generateTTS || !!voiceNarration
       }
@@ -504,7 +510,7 @@ export default function App() {
         role: preset.id,
         domain_familiarity: preset.id === 'clinician' ? 'expert' : 'novice',
         cognitive_access_needs: preset.id === 'anxious' ? 'anxiety_aware' : (preset.id === 'dyslexia_friendly' ? 'dyslexia_friendly' : (preset.id === 'child' ? 'child_appropriate' : 'standard')),
-        preferred_language: uiLanguage,
+        preferred_language: langToUse,
         modality: preset.id === 'dyslexia_friendly' ? 'highly_structured' : 'text'
       };
     }
@@ -913,7 +919,14 @@ export default function App() {
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
           <select 
             value={uiLanguage} 
-            onChange={(e) => { setUiLanguage(e.target.value); speakText("Language changed."); }}
+            onChange={(e) => { 
+              const newLang = e.target.value;
+              setUiLanguage(newLang); 
+              speakText(newLang === 'hi' ? "भाषा बदलकर हिंदी की गई है।" : "Language changed."); 
+              if (content.trim()) {
+                handleAdapt(content, newLang);
+              }
+            }}
             style={{ 
               padding: '0.4rem 0.8rem', 
               borderRadius: '6px', 
@@ -1151,7 +1164,7 @@ export default function App() {
                   <button className="btn btn-secondary" style={{ padding: '0.5rem 1rem' }} onClick={() => setShowLangModal(false)}>
                     {t("no")}
                   </button>
-                  <button className="btn btn-primary" style={{ padding: '0.5rem 1rem' }} onClick={() => { setUiLanguage(detectedLangCode); setShowLangModal(false); speakText("Translated interface."); }}>
+                  <button className="btn btn-primary" style={{ padding: '0.5rem 1rem' }} onClick={() => { setUiLanguage(detectedLangCode); setShowLangModal(false); speakText("Translated interface."); if (content.trim()) { handleAdapt(content, detectedLangCode); } }}>
                     {t("yes")}
                   </button>
                 </div>
