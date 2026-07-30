@@ -106,8 +106,10 @@ STRICT ADAPTATION RULES:
 3. Keep the rewrite strictly within the boundaries of the meaning nodes.
 4. Any explanations of technical terms or legal jargon must be kept in a clearly labeled, optional "Explanations & Definitions" section at the end of the text. Do not mix explanations into the core rewrite.
 5. If the domain is Legal, do not soften "must" or "shall" obligations into "should" or optional actions.
+6. LANGUAGE CONSTRAINT: You MUST write the "--- ADAPTED CONTENT ---" and "--- GAPS & UNCERTAINTIES ---" sections in the target language: {target_language}. Do not write it in English if the target language is different. Ensure it remains grammatically correct and matches the access needs of the target profile.
 
 Strategy Parameters to apply:
+- Target Language: {target_language}
 - Vocabulary Complexity: {vocabulary_level} (simple | intermediate | technical)
 - Structure Format: {structure_format} (paragraph | checklist | step-by-step | obligations_matrix | qa)
 - Tone: {tone} (directive | reassuring | practical | precise)
@@ -115,14 +117,14 @@ Strategy Parameters to apply:
 
 Provide your response in the following format:
 --- ADAPTED CONTENT ---
-[The adapted document text matching the requested structure and tone]
+[The adapted document text in {target_language} matching the requested structure and tone]
 
 --- PROFILE & STRATEGY USED ---
 - Profile: {profile_role} ({profile_access_needs})
-- Strategy: Vocab={vocabulary_level}, Structure={structure_format}, Tone={tone}
+- Strategy: Vocab={vocabulary_level}, Structure={structure_format}, Tone={tone}, Language={target_language}
 
 --- GAPS & UNCERTAINTIES ---
-[Explicit list of gaps detected, or "None identified."]
+[Explicit list of gaps detected in {target_language}, or "None identified."]
 """
 
 # 4. VERIFIER STAGE

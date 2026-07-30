@@ -76,13 +76,23 @@ GROUNDING CONTEXT (OPTIONAL TERMINOLOGY EXPLANATIONS):
 {grounding_context_str}
 """
     
+    lang_map = {
+        "hi": "Hindi",
+        "en": "English",
+        "es": "Spanish",
+        "fr": "French",
+        "de": "German"
+    }
+    target_language = lang_map.get(profile.preferred_language.lower(), profile.preferred_language or "English")
+    
     system_prompt = REWRITER_SYSTEM.format(
         vocabulary_level=strategy.vocabulary_level,
         structure_format=strategy.structure_format,
         tone=strategy.tone,
         information_density=strategy.information_density,
         profile_role=profile.role,
-        profile_access_needs=profile.cognitive_access_needs
+        profile_access_needs=profile.cognitive_access_needs,
+        target_language=target_language
     )
     
     try:

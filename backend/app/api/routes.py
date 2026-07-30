@@ -66,12 +66,12 @@ async def transcribe_audio_endpoint(file: UploadFile = File(...)):
             temp_path = temp_audio.name
             
         # Transcribe
-        text = transcribe_audio(temp_path)
+        result = transcribe_audio(temp_path)
         
         # Clean up
         os.remove(temp_path)
         
-        return {"text": text}
+        return result
     except Exception as e:
         logger.error(f"Error during audio transcription: {e}")
         raise HTTPException(status_code=500, detail=str(e))

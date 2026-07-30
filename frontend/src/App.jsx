@@ -25,6 +25,162 @@ const PROFILE_PRESETS = [
   { id: 'clinician', label: 'Clinician / Expert', desc: 'Preserves technical precision and findings.', icon: 'expert' }
 ];
 
+const TRANSLATIONS = {
+  en: {
+    title: "Project Meridian",
+    subtitle: "Faithful Semantic Adaptation & Audit Graph",
+    sourceDoc: "Source Document",
+    presets: "Load Presets for Testing:",
+    pasteLabel: "Paste Source Content (HTML/Plain Text):",
+    fetchLabel: "Or Fetch Document Content:",
+    urlPlaceholder: "Paste site/form URL link...",
+    fetchBtn: "Fetch",
+    uploadBtn: "Upload File",
+    presetsTitle: "Adaptation Target Profile Preset:",
+    customOverrides: "Custom Profile Overrides:",
+    roleLabel: "Role",
+    needsLabel: "Access Needs",
+    generateBtn: "Generate Compliant Adaptation",
+    processing: "Processing Pipeline...",
+    wakingUp: "Connecting to backend services...",
+    wakingUpDetail: "Server is asleep (Render free tier cold start takes ~50s). Waking it up...",
+    voiceAssistant: "Voice Assistant On",
+    voiceAssistantOff: "Voice Assistant Off",
+    voiceControlTitle: "Voice Assistant & Controller",
+    voiceControlDesc: "Click the mic and speak to control or translate the app.",
+    voiceControlPrompt: "Voice Control / command",
+    detectedLangModal: "Language Change Detected",
+    detectedLangPrompt: "We detected you spoke in {lang}. Would you like to translate the application interface to {lang}?",
+    yes: "Yes, Translate",
+    no: "No, Keep English",
+    listenBtn: "Read Aloud",
+    stopBtn: "Stop Speaking",
+    outputTitle: "Fidelity Adaptation Result",
+    tabAdapted: "Adapted Content",
+    tabFidelity: "Fidelity Report",
+    tabLogs: "Execution Audit Logs",
+    tabGraph: "Interactive Graph",
+    riskLevel: "Risk Level",
+    domain: "Domain",
+    gapsTitle: "Gaps & Uncertainties"
+  },
+  hi: {
+    title: "प्रोजेक्ट मेरिडियन",
+    subtitle: "सटीक अर्थ प्रतिपादन और ऑडिट ग्राफ",
+    sourceDoc: "स्रोत दस्तावेज़",
+    presets: "जांच के लिए सैंपल लोड करें:",
+    pasteLabel: "स्रोत सामग्री पेस्ट करें (HTML/सादा पाठ):",
+    fetchLabel: "या दस्तावेज़ सामग्री प्राप्त करें:",
+    urlPlaceholder: "वेबसाइट या फॉर्म का लिंक पेस्ट करें...",
+    fetchBtn: "प्राप्त करें",
+    uploadBtn: "फ़ाइल अपलोड करें",
+    presetsTitle: "अनुकूलन लक्ष्य प्रोफ़ाइलPreset:",
+    customOverrides: "कस्टम प्रोफ़ाइल ओवरराइड:",
+    roleLabel: "भूमिका",
+    needsLabel: "पहुंच आवश्यकताएं",
+    generateBtn: "अनुकूलित अनुवाद बनाएं",
+    processing: "प्रसंस्करण चल रहा है...",
+    wakingUp: "बैकएंड सेवाओं से जुड़ रहा है...",
+    wakingUpDetail: "सर्वर बंद है (रेंडर शुरू होने में ~50s लग सकते हैं)...",
+    voiceAssistant: "आवाज़ सहायक चालू",
+    voiceAssistantOff: "आवाज़ सहायक बंद",
+    voiceControlTitle: "आवाज सहायक और नियंत्रक",
+    voiceControlDesc: "ऐप को नियंत्रित करने या अनुवाद करने के लिए माइक दबाकर बोलें।",
+    voiceControlPrompt: "आवाज़ नियंत्रण / आदेश",
+    detectedLangModal: "भाषा परिवर्तन का पता चला",
+    detectedLangPrompt: "हमें पता चला कि आपने {lang} में बात की। क्या आप स्क्रीन की भाषा बदलकर {lang} करना चाहते हैं?",
+    yes: "हां, बदलें",
+    no: "नहीं, अंग्रेजी रखें",
+    listenBtn: "सुनें (बोलकर पढ़ें)",
+    stopBtn: "बोलना बंद करें",
+    outputTitle: "सटीकता अनुकूलन परिणाम",
+    tabAdapted: "अनुकूलित सामग्री",
+    tabFidelity: "विश्वसनीयता रिपोर्ट",
+    tabLogs: "ऑडिट लॉग्स",
+    tabGraph: "इंटरैक्टिव ग्राफ",
+    riskLevel: "जोखिम स्तर",
+    domain: "कार्यक्षेत्र",
+    gapsTitle: "कमियां और अनिश्चितताएं"
+  },
+  es: {
+    title: "Proyecto Meridian",
+    subtitle: "Adaptación Semántica y Gráfico de Auditoría",
+    sourceDoc: "Documento de Origen",
+    presets: "Cargar muestras de prueba:",
+    pasteLabel: "Pegar contenido de origen (HTML/Texto plano):",
+    fetchLabel: "O descargar contenido de URL:",
+    urlPlaceholder: "Pegar enlace de sitio o formulario...",
+    fetchBtn: "Descargar",
+    uploadBtn: "Subir archivo",
+    presetsTitle: "Perfil de audiencia objetivo:",
+    customOverrides: "Ajustes de perfil personalizados:",
+    roleLabel: "Rol",
+    needsLabel: "Necesidades de acceso",
+    generateBtn: "Generar adaptación compatible",
+    processing: "Procesando...",
+    wakingUp: "Conectando al servidor...",
+    wakingUpDetail: "El servidor está inactivo. Despertándolo...",
+    voiceAssistant: "Asistente de voz activo",
+    voiceAssistantOff: "Asistente de voz apagado",
+    voiceControlTitle: "Asistente y control por voz",
+    voiceControlDesc: "Haga clic en el micrófono y hable para controlar o traducir.",
+    voiceControlPrompt: "Control de voz / comando",
+    detectedLangModal: "Cambio de idioma detectado",
+    detectedLangPrompt: "¿Detectamos que habla {lang}. ¿Quiere cambiar el idioma de la pantalla a {lang}?",
+    yes: "Sí, traducir",
+    no: "No, mantener inglés",
+    listenBtn: "Escuchar",
+    stopBtn: "Detener voz",
+    outputTitle: "Resultado de la adaptación",
+    tabAdapted: "Contenido adaptado",
+    tabFidelity: "Reporte de fidelidad",
+    tabLogs: "Líneas de auditoría",
+    tabGraph: "Gráfico interactivo",
+    riskLevel: "Nivel de riesgo",
+    domain: "Dominio",
+    gapsTitle: "Brechas y omisiones"
+  },
+  fr: {
+    title: "Projet Meridian",
+    subtitle: "Adaptation Sémantique & Graphe d'Audit",
+    sourceDoc: "Document Source",
+    presets: "Charger des échantillons de test:",
+    pasteLabel: "Coller le contenu source (HTML/Texte brut):",
+    fetchLabel: "Ou récupérer le contenu d'une URL:",
+    urlPlaceholder: "Coller le lien du site ou du formulaire...",
+    fetchBtn: "Récupérer",
+    uploadBtn: "Téléverser un fichier",
+    presetsTitle: "Profil du public cible:",
+    customOverrides: "Surcharges de profil personnalisées:",
+    roleLabel: "Rôle",
+    needsLabel: "Besoins d'accès",
+    generateBtn: "Générer l'adaptation conforme",
+    processing: "Traitement en cours...",
+    wakingUp: "Connexion aux services backend...",
+    wakingUpDetail: "Le serveur dort. Réveil en cours...",
+    voiceAssistant: "Assistant vocal activé",
+    voiceAssistantOff: "Assistant vocal désactivé",
+    voiceControlTitle: "Assistant vocal & Contrôleur",
+    voiceControlDesc: "Cliquez sur le micro et parlez pour contrôler ou traduire.",
+    voiceControlPrompt: "Contrôle vocal / commande",
+    detectedLangModal: "Changement de langue détecté",
+    detectedLangPrompt: "Nous avons détecté que vous parlez en {lang}. Voulez-vous changer la langue de l'écran en {lang}?",
+    yes: "Oui, traduire",
+    no: "Non, garder l'anglais",
+    listenBtn: "Écouter",
+    stopBtn: "Arrêter la lecture",
+    outputTitle: "Résultat de l'adaptation conforme",
+    tabAdapted: "Contenu adapté",
+    tabFidelity: "Rapport de fidélité",
+    tabLogs: "Log d'audit d'exécution",
+    tabGraph: "Graphe interactif",
+    riskLevel: "Niveau de risque",
+    domain: "Domaine",
+    gapsTitle: "Lacunes & Incertitudes"
+  }
+};
+
+
 export default function App() {
   const [content, setContent] = useState('');
   const [selectedProfile, setSelectedProfile] = useState('general_adult');
@@ -47,15 +203,121 @@ export default function App() {
   const [audioEl, setAudioEl] = useState(null);
   
   const [urlInput, setUrlInput] = useState('');
+  const [activeInputMode, setActiveInputMode] = useState('text');
   const [voiceNarration, setVoiceNarration] = useState('');
   const [isRecordingNarration, setIsRecordingNarration] = useState(false);
-  const [voiceAssistant, setVoiceAssistant] = useState(false);
+  const [voiceAssistant, setVoiceAssistant] = useState(true);
+
+  const [uiLanguage, setUiLanguage] = useState('en');
+  const t = (key) => {
+    const dict = TRANSLATIONS[uiLanguage] || TRANSLATIONS['en'];
+    return dict[key] || TRANSLATIONS['en'][key] || key;
+  };
 
   const speakText = (text) => {
     if (!voiceAssistant) return;
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
+    if (uiLanguage === 'hi') {
+      utterance.lang = 'hi-IN';
+    } else if (uiLanguage === 'es') {
+      utterance.lang = 'es-ES';
+    } else if (uiLanguage === 'fr') {
+      utterance.lang = 'fr-FR';
+    } else {
+      utterance.lang = 'en-US';
+    }
     window.speechSynthesis.speak(utterance);
+  };
+
+  // Voice controller (Right Pane Mic)
+  const [isRecordingVoiceControl, setIsRecordingVoiceControl] = useState(false);
+  const [voiceControlFeedback, setVoiceControlFeedback] = useState('');
+  const [detectedLangCode, setDetectedLangCode] = useState(null);
+  const [showLangModal, setShowLangModal] = useState(false);
+  const voiceControlChunks = useRef([]);
+  const [voiceControlRecorder, setVoiceControlRecorder] = useState(null);
+
+  const startRecordingVoiceControl = async () => {
+    if (!navigator.mediaDevices) return;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      voiceControlChunks.current = [];
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) voiceControlChunks.current.push(e.data);
+      };
+      recorder.onstop = async () => {
+        const audioBlob = new Blob(voiceControlChunks.current, { type: 'audio/wav' });
+        const formData = new FormData();
+        const filename = uiLanguage === 'hi' || uiLanguage === 'en' ? 'command_hindi.wav' : 'command.wav';
+        formData.append('file', audioBlob, filename);
+        setLoading(true);
+        try {
+          const res = await fetch(`${API_HOST}/api/v1/transcribe`, {
+            method: 'POST',
+            body: formData
+          });
+          const data = await res.json();
+          if (data.text) {
+            setVoiceControlFeedback(data.text);
+            const lang = data.language || 'en';
+            
+            if (lang !== uiLanguage) {
+              setDetectedLangCode(lang);
+              setShowLangModal(true);
+              const langNames = { hi: 'हिंदी (Hindi)', es: 'Español (Spanish)', fr: 'Français (French)', en: 'English' };
+              const targetLangName = langNames[lang] || lang;
+              speakText(`We detected you are speaking ${targetLangName}. Would you like to translate the screen to ${targetLangName}?`);
+            } else {
+              handleVoiceCommand(data.text);
+            }
+          }
+        } catch (e) {
+          console.error(e);
+        } finally {
+          setLoading(false);
+        }
+      };
+      recorder.start();
+      setVoiceControlRecorder(recorder);
+      setIsRecordingVoiceControl(true);
+      speakText("Listening to voice command");
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const stopRecordingVoiceControl = () => {
+    if (voiceControlRecorder) {
+      voiceControlRecorder.stop();
+      setIsRecordingVoiceControl(false);
+    }
+  };
+
+  const handleVoiceCommand = (commandText) => {
+    const txt = commandText.toLowerCase();
+    if (txt.includes('read') || txt.includes('सुनो') || txt.includes('पढ़ो') || txt.includes('leer') || txt.includes('lire')) {
+      if (result && result.versions && result.versions.length > 0) {
+        speakText(result.versions[activeTabIdx]?.adapted_content || "No text generated");
+      } else {
+        speakText("No adapted text available to read.");
+      }
+    } else if (txt.includes('hindi') || txt.includes('हिंदी')) {
+      setUiLanguage('hi');
+      speakText("स्क्रीन की भाषा अब हिंदी है।");
+    } else if (txt.includes('english') || txt.includes('अंग्रेजी')) {
+      setUiLanguage('en');
+      speakText("Screen language is now English.");
+    } else if (txt.includes('spanish') || txt.includes('स्पैनिश') || txt.includes('español')) {
+      setUiLanguage('es');
+      speakText("Idioma de pantalla cambiado a español.");
+    } else if (txt.includes('french') || txt.includes('फ्रेंच') || txt.includes('français')) {
+      setUiLanguage('fr');
+      speakText("Langue d'affichage changée en français.");
+    } else {
+      speakText(`Understood command: ${commandText}`);
+    }
   };
 
   // STT / Recording State
@@ -121,8 +383,9 @@ export default function App() {
   };
 
   // Run the adaptation pipeline
-  const handleAdapt = async () => {
-    if (!content.trim()) return;
+  const handleAdapt = async (forcedContent) => {
+    const contentToUse = typeof forcedContent === 'string' ? forcedContent : content;
+    if (!contentToUse.trim()) return;
     setLoading(true);
     setResult(null);
     setLogs('');
@@ -135,12 +398,12 @@ export default function App() {
     }
 
     const payload = {
-      content: content,
+      content: contentToUse,
       audience_profile: customProfile ? {
         role: role,
         domain_familiarity: "novice",
         cognitive_access_needs: needs,
-        preferred_language: "en",
+        preferred_language: uiLanguage,
         modality: modality
       } : null,
       voice_narration: voiceNarration || null,
@@ -148,7 +411,7 @@ export default function App() {
         generate_multiple_profiles: multipleProfiles,
         profiles: multipleProfiles ? ['general_adult', 'anxious', 'child', 'clinician'] : [selectedProfile],
         include_fidelity_note: true,
-        language: "en",
+        language: uiLanguage,
         enable_external_lookup: enableExternal,
         tts_output: generateTTS || !!voiceNarration
       }
@@ -161,7 +424,7 @@ export default function App() {
         role: preset.id,
         domain_familiarity: preset.id === 'clinician' ? 'expert' : 'novice',
         cognitive_access_needs: preset.id === 'anxious' ? 'anxiety_aware' : (preset.id === 'dyslexia_friendly' ? 'dyslexia_friendly' : (preset.id === 'child' ? 'child_appropriate' : 'standard')),
-        preferred_language: 'en',
+        preferred_language: uiLanguage,
         modality: preset.id === 'dyslexia_friendly' ? 'highly_structured' : 'text'
       };
     }
@@ -180,6 +443,11 @@ export default function App() {
       // Fetch logs and graph
       fetchLogs(data.run_id);
       fetchGraph(data.run_id);
+
+      // Automatically read results aloud (Task 2 request)
+      if (data.versions && data.versions[0]) {
+        speakText(data.versions[0].adapted_content);
+      }
       
     } catch (err) {
       console.error(err);
@@ -459,7 +727,8 @@ export default function App() {
       const data = await res.json();
       if (data.text) {
         setContent(data.text);
-        speakText("Fetched document content successfully.");
+        speakText("Fetched document content. Commencing adaptation.");
+        await handleAdapt(data.text);
       }
     } catch (e) {
       console.error(e);
@@ -485,7 +754,8 @@ export default function App() {
       const data = await res.json();
       if (data.text) {
         setContent(data.text);
-        speakText("Uploaded and parsed " + file.name + " successfully.");
+        speakText("Uploaded and parsed file. Commencing adaptation.");
+        await handleAdapt(data.text);
       }
     } catch (e) {
       console.error(e);
@@ -544,18 +814,28 @@ export default function App() {
         <div className="brand">
           <Shield style={{ color: 'var(--secondary-accent)' }} size={32} />
           <div>
-            <h1>Project Meridian</h1>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Faithful Semantic Adaptation & Audit Graph</p>
+            <h1>{t("title")}</h1>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t("subtitle")}</p>
           </div>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <select 
+            value={uiLanguage} 
+            onChange={(e) => { setUiLanguage(e.target.value); speakText("Language changed."); }}
+            style={{ padding: '0.4rem 0.8rem', borderRadius: '6px', border: '1px solid var(--border-color)', background: 'var(--glass-bg)', color: 'var(--text-main)', fontSize: '0.8rem', cursor: 'pointer' }}
+          >
+            <option value="en">English</option>
+            <option value="hi">हिंदी (Hindi)</option>
+            <option value="es">Español (Spanish)</option>
+            <option value="fr">Français (French)</option>
+          </select>
           <button 
             className={`btn ${voiceAssistant ? 'btn-primary' : 'btn-secondary'}`}
             style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }}
-            onClick={() => { setVoiceAssistant(!voiceAssistant); speakText("Voice Assistant Activated. Focus or hover on elements to read aloud."); }}
+            onClick={() => { setVoiceAssistant(!voiceAssistant); speakText("Voice Assistant Activated."); }}
           >
             {voiceAssistant ? <Volume2 size={14} /> : <VolumeX size={14} />}
-            {voiceAssistant ? "Voice Assistant On" : "Voice Assistant Off"}
+            {voiceAssistant ? t("voiceAssistant") : t("voiceAssistantOff")}
           </button>
           <div className="system-badge">Production-Shaped System</div>
         </div>
@@ -605,57 +885,106 @@ export default function App() {
             </div>
           </div>
 
-          {/* URL & File Upload Input Section */}
-          <div style={{ display: 'flex', gap: '0.5rem', flexDirection: 'column' }}>
-            <label style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Or Fetch Document Content:</label>
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.2fr', gap: '0.5rem', alignItems: 'center' }}>
-              <div style={{ display: 'flex', gap: '0.25rem', width: '100%' }}>
+          {/* Segment/Tab Switcher for Inputs (Task 2 request) */}
+          <div className="tabs-container" style={{ margin: '1rem 0', display: 'flex', gap: '0.25rem', padding: '2px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
+            <button 
+              className={`tab ${activeInputMode === 'text' ? 'active' : ''}`}
+              style={{ flex: 1, padding: '0.5rem', fontSize: '0.8rem', borderRadius: '6px' }}
+              onClick={() => { setActiveInputMode('text'); speakText("Switched to Paste Text mode"); }}
+            >
+              {uiLanguage === 'hi' ? 'टेक्स्ट लिखें/पेस्ट करें' : 'Write / Paste Text'}
+            </button>
+            <button 
+              className={`tab ${activeInputMode === 'url' ? 'active' : ''}`}
+              style={{ flex: 1, padding: '0.5rem', fontSize: '0.8rem', borderRadius: '6px' }}
+              onClick={() => { setActiveInputMode('url'); speakText("Switched to URL Fetch mode"); }}
+            >
+              {uiLanguage === 'hi' ? 'वेब / फॉर्म लिंक' : 'Web / Form URL Link'}
+            </button>
+            <button 
+              className={`tab ${activeInputMode === 'file' ? 'active' : ''}`}
+              style={{ flex: 1, padding: '0.5rem', fontSize: '0.8rem', borderRadius: '6px' }}
+              onClick={() => { setActiveInputMode('file'); speakText("Switched to File Upload mode"); }}
+            >
+              {uiLanguage === 'hi' ? 'फ़ाइल अपलोड करें' : 'Upload Document File'}
+            </button>
+          </div>
+
+          {activeInputMode === 'text' && (
+            <div className="form-group" style={{ position: 'relative' }}>
+              <label htmlFor="source-text" onMouseEnter={() => speakText("Source document input text. Currently has " + content.length + " characters.")}>
+                {t("pasteLabel")}
+              </label>
+              <textarea 
+                id="source-text"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder={uiLanguage === 'hi' ? "यहां अनुबंध, फॉर्म, निर्देश, नोटिस आदि पेस्ट करें..." : "Paste contracts, forms, instructions, notices, etc..."}
+                style={{ minHeight: '220px' }}
+                onMouseEnter={() => speakText("Document text box. Paste here.")}
+              />
+              
+              {/* STT trigger button */}
+              <div style={{ position: 'absolute', bottom: '15px', right: '15px', zIndex: 10 }}>
+                {isRecording ? (
+                  <button className="btn btn-primary" style={{ padding: '0.5rem', borderRadius: '50%' }} onClick={stopRecording} onMouseEnter={() => speakText("Stop voice dictation")}>
+                    <Square size={16} />
+                  </button>
+                ) : (
+                  <button className="btn btn-secondary" style={{ padding: '0.5rem', borderRadius: '50%' }} onClick={startRecording} onMouseEnter={() => speakText("Start voice dictation")}>
+                    <Mic size={16} style={{ color: 'var(--secondary-accent)' }} />
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {activeInputMode === 'url' && (
+            <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
+              <label>{t("fetchLabel")}</label>
+              <div style={{ display: 'flex', gap: '0.5rem', width: '100%' }}>
                 <input 
                   type="text" 
                   value={urlInput}
                   onChange={(e) => setUrlInput(e.target.value)}
-                  placeholder="Paste site/form URL link..."
-                  style={{ flex: 1, padding: '0.5rem', background: '#0a0e1a', color: 'white', border: '1px solid var(--border-color)', borderRadius: '4px', outline: 'none', fontSize: '0.85rem' }}
+                  placeholder={t("urlPlaceholder")}
+                  style={{ flex: 1, padding: '0.6rem', background: '#0a0e1a', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', outline: 'none', fontSize: '0.85rem' }}
                 />
-                <button className="btn btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }} onClick={handleFetchUrl} onMouseEnter={() => speakText("Fetch content from URL")}>
-                  Fetch
+                <button className="btn btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.8rem' }} onClick={handleFetchUrl} onMouseEnter={() => speakText("Fetch and adapt content from URL")}>
+                  {t("fetchBtn")}
                 </button>
               </div>
-              <label className="btn btn-secondary" style={{ padding: '0.45rem', margin: 0, textAlign: 'center', cursor: 'pointer', fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }} onMouseEnter={() => speakText("Upload HTML or text document file")}>
-                <FileText size={12} /> Upload File
-                <input type="file" accept=".html,.htm,.txt" style={{ display: 'none' }} onChange={handleFileUpload} />
-              </label>
             </div>
-          </div>
+          )}
 
-          <div className="form-group" style={{ position: 'relative' }}>
-            <label htmlFor="source-text" onMouseEnter={() => speakText("Source document input text. Currently has " + content.length + " characters.")}>Paste Source Content (HTML/Plain Text):</label>
-            <textarea 
-              id="source-text"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="Paste contracts, forms, instructions, notices, etc..."
-              onMouseEnter={() => speakText("Document text box. Paste here.")}
-            />
-            
-            {/* STT trigger button */}
-            <div style={{ position: 'absolute', bottom: '15px', right: '15px', zIndex: 10 }}>
-              {isRecording ? (
-                <button className="btn btn-primary" style={{ padding: '0.5rem', borderRadius: '50%' }} onClick={stopRecording} onMouseEnter={() => speakText("Stop voice dictation")}>
-                  <Square size={16} />
-                </button>
-              ) : (
-                <button className="btn btn-secondary" style={{ padding: '0.5rem', borderRadius: '50%' }} onClick={startRecording} onMouseEnter={() => speakText("Start voice dictation")}>
-                  <Mic size={16} />
-                </button>
-              )}
+          {activeInputMode === 'file' && (
+            <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
+              <label>{t("uploadBtn")}</label>
+              <div 
+                className="glass" 
+                style={{ border: '2px dashed var(--border-color)', padding: '2rem', borderRadius: '8px', textAlign: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.01)' }}
+                onClick={() => document.getElementById('file-upload-input').click()}
+                onMouseEnter={() => speakText("File drag and drop area. Click to select HTML or text file")}
+              >
+                <FileText size={36} style={{ color: 'var(--secondary-accent)', marginBottom: '0.75rem' }} />
+                <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                  {uiLanguage === 'hi' ? 'फ़ाइल चुनने के लिए यहाँ क्लिक करें (HTML, HTM, TXT)' : 'Click to select and upload document (HTML, HTM, TXT)'}
+                </p>
+                <input 
+                  type="file" 
+                  accept=".html,.htm,.txt" 
+                  style={{ display: 'none' }} 
+                  id="file-upload-input"
+                  onChange={handleFileUpload} 
+                />
+              </div>
             </div>
-          </div>
-          
-          {isRecording && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'hsl(350, 80%, 55%)', fontSize: '0.875rem' }}>
+          )}
+
+          {isRecording && activeInputMode === 'text' && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'hsl(350, 80%, 55%)', fontSize: '0.875rem', marginBottom: '1rem' }}>
               <div className="pulse-recording"></div>
-              Recording... Speak now.
+              {uiLanguage === 'hi' ? 'रिकॉर्डिंग... कृपया बोलें।' : 'Recording... Speak now.'}
             </div>
           )}
 
@@ -746,11 +1075,11 @@ export default function App() {
 
           <button 
             className="btn btn-primary" 
-            onClick={handleAdapt} 
+            onClick={() => handleAdapt()} 
             disabled={loading || !content.trim()}
             onMouseEnter={() => speakText("Generate adaptation button. Click to run the pipeline.")}
           >
-            {loading ? 'Processing Pipeline...' : 'Generate Compliant Adaptation'}
+            {loading ? t("processing") : t("generateBtn")}
           </button>
         </section>
 
@@ -758,8 +1087,56 @@ export default function App() {
         <section className="panel glass" style={{ minHeight: '600px' }}>
           <h2>
             <Activity size={20} />
-            Compliant Adaptation Engine Output
+            {t("outputTitle")}
           </h2>
+
+          {/* Voice Controller Widget */}
+          <div className="glass" style={{ padding: '1rem', border: '1px solid var(--primary-accent)', background: 'var(--primary-glow)', display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem', borderRadius: '8px' }}>
+            <h3 style={{ fontSize: '0.9rem', color: 'var(--secondary-accent)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+              <Volume2 size={16} />
+              {t("voiceControlTitle")}
+            </h3>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0 }}>
+              {t("voiceControlDesc")}
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+              {isRecordingVoiceControl ? (
+                <button className="btn btn-primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }} onClick={stopRecordingVoiceControl}>
+                  <Square size={12} /> {t("stopBtn")}
+                </button>
+              ) : (
+                <button className="btn btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }} onClick={startRecordingVoiceControl}>
+                  <Mic size={12} style={{ color: 'var(--secondary-accent)' }} /> {t("voiceControlPrompt")}
+                </button>
+              )}
+              {voiceControlFeedback && (
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-main)', flex: 1, minWidth: '150px', padding: '0.4rem 0.6rem', background: 'rgba(0,0,0,0.3)', borderRadius: '4px', border: '1px solid var(--border-color)' }}>
+                  <strong>Command:</strong> "{voiceControlFeedback}"
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Detected Language Switcher Modal */}
+          {showLangModal && (
+            <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+              <div className="glass" style={{ padding: '2rem', maxWidth: '400px', display: 'flex', flexDirection: 'column', gap: '1.5rem', border: '1px solid var(--primary-accent)', borderRadius: '12px' }}>
+                <h3 style={{ margin: 0, color: 'var(--secondary-accent)' }}>{t("detectedLangModal")}</h3>
+                <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: '1.4' }}>
+                  {t("detectedLangPrompt")
+                    .replace(/{lang}/g, detectedLangCode === 'hi' ? 'हिंदी (Hindi)' : (detectedLangCode === 'es' ? 'Español (Spanish)' : (detectedLangCode === 'fr' ? 'Français (French)' : detectedLangCode)))}
+                </p>
+                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+                  <button className="btn btn-secondary" style={{ padding: '0.5rem 1rem' }} onClick={() => setShowLangModal(false)}>
+                    {t("no")}
+                  </button>
+                  <button className="btn btn-primary" style={{ padding: '0.5rem 1rem' }} onClick={() => { setUiLanguage(detectedLangCode); setShowLangModal(false); speakText("Translated interface."); }}>
+                    {t("yes")}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {loading && (
             <div className="spinner-container">
@@ -815,7 +1192,7 @@ export default function App() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <button className="btn btn-secondary" style={{ padding: '0.5rem 1rem', fontSize: '0.8rem' }} onClick={() => playAudio(result.versions[activeTabIdx].audio_url)}>
                         {isPlayingAudio ? <VolumeX size={14} /> : <Play size={14} />}
-                        {isPlayingAudio ? 'Pause Speech' : 'Listen Aloud'}
+                        {isPlayingAudio ? t("stopBtn") : t("listenBtn")}
                       </button>
                     </div>
                   )}
@@ -830,7 +1207,7 @@ export default function App() {
                     <div className="gaps-panel">
                       <h3>
                         <AlertTriangle size={16} style={{ display: 'inline', marginRight: '0.25rem', verticalAlign: 'text-bottom' }} />
-                        Gaps & Uncertainties in Source Document
+                        {t("gapsTitle")}
                       </h3>
                       <ul>
                         {result.versions[activeTabIdx].gaps.map((gap, i) => (

@@ -25,9 +25,10 @@ def get_whisper_model():
             _model = None
     return _model
 
-def transcribe_audio(file_path: str) -> str:
+def transcribe_audio(file_path: str) -> dict:
     """
     Transcribes audio file to text using faster-whisper.
+    Returns a dict with {"text": text, "language": language_code}
     """
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"Audio file not found: {file_path}")
@@ -35,8 +36,17 @@ def transcribe_audio(file_path: str) -> str:
     model = get_whisper_model()
     if not model:
         if settings.DISABLE_LOCAL_MODELS:
-            return "[STT Mock: Hello. I am writing to submit a consent form for access to my apartment on August 15.]"
-        return "[STT Engine offline or libraries missing. Could not transcribe audio.]"
+            # Check if file has "narration" or similar to simulate mock language request
+            text_val = "Hello, please show me this in Hindi."
+            # If the filename or temp path hints at hindi voice testing, we can simulate
+            if "hindi" in file_path.lower():
+                text_val = "नमस्ते, मुझे यह हिंदी में देखना है।"
+                return {"text": text_val, "language": "hi"}
+            return {"text": text_val, "language": "en"}
+        return {
+            "text": "[STT Engine offline or libraries missing. Could not transcribe audio.]",
+            "language": "en"
+        }
         
     try:
         logger.info(f"Transcribing audio file: {file_path}")
@@ -44,9 +54,15 @@ def transcribe_audio(file_path: str) -> str:
         
         # Combine text segments
         full_text = " ".join([segment.text for segment in segments])
-        logger.info("Transcription completed successfully.")
-        return full_text.strip()
+        logger.info(f"Transcription completed successfully. Detected language: {info.language}")
+        return {
+            "text": full_text.strip(),
+            "language": info.language
+        }
         
     except Exception as e:
         logger.error(f"Speech transcription failed: {e}")
-        return f"[Transcription error: {str(e)}]"
+        return {
+            "text": f"[Transcription error: {str(e)}]",
+            "language": "en"
+        }
