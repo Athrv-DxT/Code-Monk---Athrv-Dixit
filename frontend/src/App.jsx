@@ -1010,14 +1010,36 @@ export default function App() {
             </div>
           )}
 
-          {/* Centered Voice Assistant Mic for Ingestion & Dictation */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', margin: '2rem 0 1.5rem 0', gap: '0.75rem' }}>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: '500' }}>
-              {uiLanguage === 'hi' ? 'बोलने और अनुकूलित करने के लिए माइक दबाएं' : 'Click to Speak & Adapt Document'}
-            </span>
-            {isRecording ? (
+          <button 
+            className="btn btn-primary" 
+            onClick={() => handleAdapt()} 
+            disabled={loading || !content.trim()}
+            onMouseEnter={() => speakText("Generate adaptation button. Click to run the pipeline.")}
+          >
+            {loading ? t("processing") : t("generateBtn")}
+          </button>
+        </section>
+
+        {/* Right Output Panel */}
+        <section className="panel glass" style={{ minHeight: '600px' }}>
+          <h2>
+            <Activity size={20} />
+            {t("outputTitle")}
+          </h2>
+
+          {/* Circular Voice Assistant Mic for Right Panel */}
+          <div className="glass" style={{ padding: '1.5rem', border: '1px solid var(--primary-accent)', background: 'var(--primary-glow)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', marginBottom: '1.5rem', borderRadius: '8px' }}>
+            <h3 style={{ fontSize: '0.9rem', color: 'var(--secondary-accent)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+              <Volume2 size={16} />
+              {t("voiceControlTitle")}
+            </h3>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '0 0 0.5rem 0', textAlign: 'center' }}>
+              {t("voiceControlDesc")}
+            </p>
+            
+            {isRecordingVoiceControl ? (
               <button 
-                className="btn btn-primary" 
+                className="btn btn-primary animate-pulse" 
                 style={{ 
                   width: '64px', 
                   height: '64px', 
@@ -1030,8 +1052,8 @@ export default function App() {
                   border: 'none',
                   cursor: 'pointer'
                 }} 
-                onClick={stopRecording}
-                onMouseEnter={() => speakText("Stop recording")}
+                onClick={stopRecordingVoiceControl}
+                onMouseEnter={() => speakText("Stop recording voice command")}
               >
                 <Square size={24} style={{ color: 'white' }} />
               </button>
@@ -1050,62 +1072,29 @@ export default function App() {
                   border: 'none',
                   cursor: 'pointer'
                 }} 
-                onClick={startRecording}
-                onMouseEnter={() => speakText("Start recording voice dictation")}
+                onClick={startRecordingVoiceControl}
+                onMouseEnter={() => speakText("Click to speak to the voice assistant")}
               >
                 <Mic size={24} style={{ color: 'white' }} />
               </button>
             )}
-            {isRecording && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'hsl(350, 80%, 55%)', fontSize: '0.8rem' }}>
+            
+            {isRecordingVoiceControl ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'hsl(350, 80%, 55%)', fontSize: '0.8rem', marginTop: '0.25rem' }}>
                 <div className="pulse-recording" style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'hsl(350, 80%, 55%)' }}></div>
                 {uiLanguage === 'hi' ? 'बोलें, सिस्टम अपने आप रुक जाएगा...' : 'Speaking... stop talking to auto-process'}
               </div>
+            ) : (
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: '500', marginTop: '0.25rem' }}>
+                {uiLanguage === 'hi' ? 'सहायक से बात करने के लिए दबाएं' : 'Click to Speak & Control'}
+              </span>
             )}
-          </div>
 
-          <button 
-            className="btn btn-primary" 
-            onClick={() => handleAdapt()} 
-            disabled={loading || !content.trim()}
-            onMouseEnter={() => speakText("Generate adaptation button. Click to run the pipeline.")}
-          >
-            {loading ? t("processing") : t("generateBtn")}
-          </button>
-        </section>
-
-        {/* Right Output Panel */}
-        <section className="panel glass" style={{ minHeight: '600px' }}>
-          <h2>
-            <Activity size={20} />
-            {t("outputTitle")}
-          </h2>
-
-          {/* Voice Controller Widget */}
-          <div className="glass" style={{ padding: '1rem', border: '1px solid var(--primary-accent)', background: 'var(--primary-glow)', display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem', borderRadius: '8px' }}>
-            <h3 style={{ fontSize: '0.9rem', color: 'var(--secondary-accent)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
-              <Volume2 size={16} />
-              {t("voiceControlTitle")}
-            </h3>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0 }}>
-              {t("voiceControlDesc")}
-            </p>
-            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
-              {isRecordingVoiceControl ? (
-                <button className="btn btn-primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }} onClick={stopRecordingVoiceControl}>
-                  <Square size={12} /> {t("stopBtn")}
-                </button>
-              ) : (
-                <button className="btn btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }} onClick={startRecordingVoiceControl}>
-                  <Mic size={12} style={{ color: 'var(--secondary-accent)' }} /> {t("voiceControlPrompt")}
-                </button>
-              )}
-              {voiceControlFeedback && (
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-main)', flex: 1, minWidth: '150px', padding: '0.4rem 0.6rem', background: 'rgba(0,0,0,0.3)', borderRadius: '4px', border: '1px solid var(--border-color)' }}>
-                  <strong>Command:</strong> "{voiceControlFeedback}"
-                </div>
-              )}
-            </div>
+            {voiceControlFeedback && (
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-main)', width: '100%', maxWidth: '280px', textAlign: 'center', padding: '0.4rem 0.6rem', background: 'rgba(0,0,0,0.3)', borderRadius: '4px', border: '1px solid var(--border-color)', marginTop: '0.5rem' }}>
+                <strong>Command:</strong> "{voiceControlFeedback}"
+              </div>
+            )}
           </div>
 
           {/* Detected Language Switcher Modal */}
