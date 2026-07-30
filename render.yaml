@@ -1,0 +1,30 @@
+# ==============================================================================
+# PROJECT MERIDIAN - RENDER BLUEPRINT (INFRASTRUCTURE-AS-CODE)
+# ==============================================================================
+
+services:
+  # 1. FastAPI Python Web Service (Backend)
+  - type: web
+    name: meridian-backend
+    env: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt && python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('BAAI/bge-small-en-v1.5')"
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: ENV
+        value: production
+      # These variables must be populated manually in the Render dashboard
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: TAVILY_API_KEY
+        sync: false
+      - key: NEO4J_URI
+        sync: false
+      - key: NEO4J_USER
+        sync: false
+      - key: NEO4J_PASSWORD
+        sync: false
