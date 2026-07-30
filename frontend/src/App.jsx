@@ -447,6 +447,67 @@ export default function App() {
     };
   }, []);
 
+  // Dynamically styled viewport matching selected profile's access needs
+  const getViewportStyle = () => {
+    switch (selectedProfile) {
+      case 'dyslexia_friendly':
+        return {
+          fontFamily: 'system-ui, sans-serif',
+          lineHeight: '2.2',
+          letterSpacing: '0.15em',
+          wordSpacing: '0.3em',
+          fontSize: '1.1rem',
+          padding: '1.5rem',
+          background: 'rgba(245, 158, 11, 0.05)',
+          borderLeft: '4px solid #f59e0b',
+          borderRadius: '8px',
+          color: '#f3f4f6'
+        };
+      case 'child':
+        return {
+          fontSize: '1.25rem',
+          lineHeight: '1.8',
+          letterSpacing: '0.02em',
+          color: '#e0e7ff',
+          padding: '1.5rem',
+          background: 'rgba(99, 102, 241, 0.05)',
+          borderLeft: '4px solid #6366f1',
+          borderRadius: '8px'
+        };
+      case 'anxious':
+        return {
+          fontSize: '1.05rem',
+          lineHeight: '1.7',
+          color: '#ecfeff',
+          padding: '1.5rem',
+          background: 'rgba(6, 182, 212, 0.05)',
+          borderLeft: '4px solid #06b6d4',
+          borderRadius: '8px'
+        };
+      case 'clinician':
+        return {
+          fontFamily: 'monospace',
+          fontSize: '0.9rem',
+          lineHeight: '1.5',
+          color: '#e2e8f0',
+          padding: '1.25rem',
+          background: 'rgba(0, 0, 0, 0.25)',
+          borderLeft: '4px solid #10b981',
+          borderRadius: '4px'
+        };
+      default:
+        return {
+          fontSize: '0.95rem',
+          lineHeight: '1.6',
+          color: 'var(--text-main)',
+          padding: '1rem',
+          background: 'rgba(255,255,255,0.01)',
+          border: '1px solid var(--border-color)',
+          borderRadius: '8px'
+        };
+    }
+  };
+
   // Standard preset sample documents
   const loadSampleDoc = (type) => {
     if (type === 'admin') {
@@ -1081,6 +1142,61 @@ export default function App() {
             {t("outputTitle")}
           </h2>
 
+          {/* Reader Profile Selection Tabs (as requested above voice assistant control) */}
+          <div className="glass" style={{ padding: '1.25rem', border: '1px solid var(--border-color)', marginBottom: '1.25rem', borderRadius: '8px' }}>
+            <h4 style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 0.75rem 0', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <Settings size={14} style={{ color: 'var(--secondary-accent)' }} />
+              {uiLanguage === 'hi' ? 'पाठक की भूमिका / आवश्यकता चुनें:' : 'Target Reader Profile / Access Needs:'}
+            </h4>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
+              {PROFILE_PRESETS.map((preset) => {
+                const isActive = selectedProfile === preset.id;
+                return (
+                  <button
+                    key={preset.id}
+                    className={`tab ${isActive ? 'active' : ''}`}
+                    onClick={() => {
+                      setSelectedProfile(preset.id);
+                      speakText(uiLanguage === 'hi' ? `${preset.label} के लिए अनुकूलन कर रहे हैं` : `Adapting for ${preset.label}`);
+                      if (content.trim()) {
+                        handleAdapt(content, uiLanguage, preset.id);
+                      }
+                    }}
+                    style={{
+                      padding: '0.5rem 0.25rem',
+                      fontSize: '0.7rem',
+                      textAlign: 'center',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      background: isActive ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(147, 51, 234, 0.2))' : 'rgba(255,255,255,0.02)',
+                      border: isActive ? '1px solid var(--secondary-accent)' : '1px solid var(--border-color)',
+                      color: isActive ? '#ffffff' : 'var(--text-muted)',
+                      fontWeight: isActive ? '600' : 'normal',
+                      boxShadow: isActive ? '0 0 10px rgba(147, 51, 234, 0.15)' : 'none',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}
+                    onMouseEnter={() => speakText(`${preset.label}: ${preset.desc}`)}
+                  >
+                    {preset.id === 'general_adult' ? (uiLanguage === 'hi' ? 'वयस्क' : 'Adult') : 
+                     preset.id === 'child' ? (uiLanguage === 'hi' ? 'बच्चा' : 'Child') : 
+                     preset.id === 'anxious' ? (uiLanguage === 'hi' ? 'चिंतित' : 'Anxious') : 
+                     preset.id === 'dyslexia_friendly' ? (uiLanguage === 'hi' ? 'डिस्लेक्सिया' : 'Dyslexic') : 
+                     preset.id === 'caregiver' ? (uiLanguage === 'hi' ? 'देखभालकर्ता' : 'Caregiver') : 
+                     (uiLanguage === 'hi' ? 'विशेषज्ञ' : 'Expert')}
+                  </button>
+                );
+              })}
+            </div>
+            
+            {/* Active profile description details */}
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.75rem', background: 'rgba(0,0,0,0.15)', padding: '0.5rem 0.75rem', borderRadius: '4px', borderLeft: '3px solid var(--secondary-accent)' }}>
+              <strong>{PROFILE_PRESETS.find(p => p.id === selectedProfile)?.label}:</strong> {PROFILE_PRESETS.find(p => p.id === selectedProfile)?.desc}
+            </div>
+          </div>
+
           {/* Circular Voice Assistant Mic for Right Panel */}
           <div className="glass" style={{ padding: '1.5rem', border: '1px solid var(--primary-accent)', background: 'var(--primary-glow)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', marginBottom: '1.5rem', borderRadius: '8px' }}>
             <h3 style={{ fontSize: '0.9rem', color: 'var(--secondary-accent)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
@@ -1231,8 +1347,8 @@ export default function App() {
                     </div>
                   )}
 
-                  {/* Adapted Content */}
-                  <div className="adapted-viewport">
+                  {/* Adapted Content with profile-specific accessibility styling */}
+                  <div className="adapted-viewport" style={getViewportStyle()}>
                     {result.versions[activeTabIdx].adapted_content}
                   </div>
 
