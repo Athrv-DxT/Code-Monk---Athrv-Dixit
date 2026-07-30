@@ -79,6 +79,16 @@ GROUNDING CONTEXT (OPTIONAL TERMINOLOGY EXPLANATIONS):
     lang_map = {
         "hi": "Hindi",
         "en": "English",
+        "bn": "Bengali",
+        "mr": "Marathi",
+        "te": "Telugu",
+        "ta": "Tamil",
+        "gu": "Gujarati",
+        "kn": "Kannada",
+        "ml": "Malayalam",
+        "pa": "Punjabi",
+        "or": "Odia",
+        "ur": "Urdu",
         "es": "Spanish",
         "fr": "French",
         "de": "German"

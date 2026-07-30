@@ -218,15 +218,23 @@ export default function App() {
     if (!voiceAssistant) return;
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
-    if (uiLanguage === 'hi') {
-      utterance.lang = 'hi-IN';
-    } else if (uiLanguage === 'es') {
-      utterance.lang = 'es-ES';
-    } else if (uiLanguage === 'fr') {
-      utterance.lang = 'fr-FR';
-    } else {
-      utterance.lang = 'en-US';
-    }
+    const langLocales = {
+      hi: 'hi-IN',
+      bn: 'bn-IN',
+      mr: 'mr-IN',
+      te: 'te-IN',
+      ta: 'ta-IN',
+      gu: 'gu-IN',
+      ur: 'ur-IN',
+      kn: 'kn-IN',
+      or: 'or-IN',
+      ml: 'ml-IN',
+      pa: 'pa-IN',
+      es: 'es-ES',
+      fr: 'fr-FR',
+      en: 'en-US'
+    };
+    utterance.lang = langLocales[uiLanguage] || 'en-US';
     window.speechSynthesis.speak(utterance);
   };
 
@@ -318,7 +326,22 @@ export default function App() {
             if (lang !== uiLanguage) {
               setDetectedLangCode(lang);
               setShowLangModal(true);
-              const langNames = { hi: 'हिंदी (Hindi)', es: 'Español (Spanish)', fr: 'Français (French)', en: 'English' };
+              const langNames = {
+                hi: 'हिंदी (Hindi)',
+                bn: 'বাংলা (Bengali)',
+                mr: 'मराठी (Marathi)',
+                te: 'తెలుగు (Telugu)',
+                ta: 'தமிழ் (Tamil)',
+                gu: 'ગુજરાતી (Gujarati)',
+                ur: 'اردو (Urdu)',
+                kn: 'ಕನ್ನಡ (Kannada)',
+                or: 'ଓଡ଼ିଆ (Odia)',
+                ml: 'മലയാളം (Malayalam)',
+                pa: 'ਪੰਜਾਬੀ (Punjabi)',
+                es: 'Español (Spanish)',
+                fr: 'Français (French)',
+                en: 'English'
+              };
               const targetLangName = langNames[lang] || lang;
               speakText(`We detected you are speaking ${targetLangName}. Would you like to translate the screen to ${targetLangName}?`);
             } else {
@@ -891,12 +914,30 @@ export default function App() {
           <select 
             value={uiLanguage} 
             onChange={(e) => { setUiLanguage(e.target.value); speakText("Language changed."); }}
-            style={{ padding: '0.4rem 0.8rem', borderRadius: '6px', border: '1px solid var(--border-color)', background: 'var(--glass-bg)', color: 'var(--text-main)', fontSize: '0.8rem', cursor: 'pointer' }}
+            style={{ 
+              padding: '0.4rem 0.8rem', 
+              borderRadius: '6px', 
+              border: '1px solid var(--border-color)', 
+              background: '#0a0e1a', 
+              color: '#ffffff', 
+              fontSize: '0.8rem', 
+              cursor: 'pointer' 
+            }}
           >
-            <option value="en">English</option>
-            <option value="hi">हिंदी (Hindi)</option>
-            <option value="es">Español (Spanish)</option>
-            <option value="fr">Français (French)</option>
+            <option value="en" style={{ background: '#0a0e1a', color: '#ffffff' }}>English</option>
+            <option value="hi" style={{ background: '#0a0e1a', color: '#ffffff' }}>हिंदी (Hindi)</option>
+            <option value="bn" style={{ background: '#0a0e1a', color: '#ffffff' }}>বাংলা (Bengali)</option>
+            <option value="mr" style={{ background: '#0a0e1a', color: '#ffffff' }}>मराठी (Marathi)</option>
+            <option value="te" style={{ background: '#0a0e1a', color: '#ffffff' }}>తెలుగు (Telugu)</option>
+            <option value="ta" style={{ background: '#0a0e1a', color: '#ffffff' }}>தமிழ் (Tamil)</option>
+            <option value="gu" style={{ background: '#0a0e1a', color: '#ffffff' }}>ગુજરાતી (Gujarati)</option>
+            <option value="kn" style={{ background: '#0a0e1a', color: '#ffffff' }}>ಕನ್ನಡ (Kannada)</option>
+            <option value="ml" style={{ background: '#0a0e1a', color: '#ffffff' }}>മലയാളം (Malayalam)</option>
+            <option value="pa" style={{ background: '#0a0e1a', color: '#ffffff' }}>ਪੰਜਾਬੀ (Punjabi)</option>
+            <option value="or" style={{ background: '#0a0e1a', color: '#ffffff' }}>ଓଡ଼ିଆ (Odia)</option>
+            <option value="ur" style={{ background: '#0a0e1a', color: '#ffffff' }}>اردو (Urdu)</option>
+            <option value="es" style={{ background: '#0a0e1a', color: '#ffffff' }}>Español (Spanish)</option>
+            <option value="fr" style={{ background: '#0a0e1a', color: '#ffffff' }}>Français (French)</option>
           </select>
           <button 
             className={`btn ${voiceAssistant ? 'btn-primary' : 'btn-secondary'}`}
