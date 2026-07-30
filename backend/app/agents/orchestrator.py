@@ -31,6 +31,31 @@ def run_pipeline(
     
     checkpoint_logger.log_event("RUN_STARTED", f"Pipeline initiated with {len(content)} character input.")
     
+    vault = None
+    from app.config import settings
+    if settings.ENABLE_PII_MASKING:
+        from app.privacy.detector import PIIDetector
+        from app.privacy.masker import PIIMasker
+        from app.privacy.vault import PIIVault
+        from app.privacy.logger import PIILogger
+        
+        detector = PIIDetector()
+        masker = PIIMasker()
+        vault = PIIVault()
+        
+        # Mask main document content
+        detections = detector.detect(content)
+        content = masker.mask(content, detections, vault)
+        
+        pii_summary = PIILogger.get_summary(detections)
+        checkpoint_logger.log_event("PII_REDACTION_COMPLETED", f"Main document masked. {pii_summary}")
+        
+        # Mask voice narration if present
+        if voice_narration:
+            narration_dets = detector.detect(voice_narration)
+            voice_narration = masker.mask(voice_narration, narration_dets, vault)
+            checkpoint_logger.log_event("PII_REDACTION_COMPLETED", "Voice narration masked.")
+            
     try:
         # 0. Voice-driven profile extraction override (v4 Accessibility)
         voice_profile = None
@@ -109,6 +134,16 @@ def run_pipeline(
             # 7. Verification
             verification = run_verifier(adapted_text, representation, run_id, checkpoint_logger)
             
+            # Reinsert PII values if vault is available
+            unmasked_adapted_text = adapted_text
+            unmasked_explanations = explanations
+            if settings.ENABLE_PII_MASKING and vault:
+                from app.privacy.reinserter import PIIReinserter
+                reinserter = PIIReinserter()
+                unmasked_adapted_text = reinserter.reinsert(adapted_text, vault)
+                if explanations:
+                    unmasked_explanations = [reinserter.reinsert(exp, vault) for exp in explanations]
+
             # Combine gaps (initial understanding + rewrite gaps)
             all_gaps = list(set(initial_gaps + rewrite_gaps))
             
@@ -128,7 +163,7 @@ def run_pipeline(
             audio_url = ""
             if options.get("tts_output", False):
                 checkpoint_logger.log_event("TTS_GENERATION_STARTED", f"Generating audio for profile {profile.role} in language {profile.preferred_language}...")
-                audio_path = generate_tts(adapted_text, run_id, profile.role, profile.preferred_language)
+                audio_path = generate_tts(unmasked_adapted_text, run_id, profile.role, profile.preferred_language)
                 if audio_path:
                     audio_url = f"/api/v1/audio/{run_id}/{profile.role}.mp3"
                     checkpoint_logger.log_event("TTS_GENERATION_COMPLETED", f"Audio generated at {audio_path}")
@@ -138,12 +173,12 @@ def run_pipeline(
             # Build version response
             version_response = {
                 "profile": profile.role,
-                "adapted_content": adapted_text,
+                "adapted_content": unmasked_adapted_text,
                 "strategy_summary": strategy_summary,
                 "gaps": all_gaps,
                 "fidelity_note": fidelity_note,
                 "audio_url": audio_url,
-                "explanations": explanations
+                "explanations": unmasked_explanations
             }
             versions.append(version_response)
             
@@ -169,6 +204,9 @@ def run_pipeline(
         logger.exception("Pipeline execution failed:")
         checkpoint_logger.log_event("RUN_FAILED", f"Pipeline crashed with error: {str(e)}")
         raise e
+    finally:
+        if vault:
+            vault.clear()
 
 def _resolve_preset_profile(profile_name: str) -> AudienceProfile:
     """

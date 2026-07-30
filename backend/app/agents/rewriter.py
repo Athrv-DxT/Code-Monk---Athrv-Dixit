@@ -30,8 +30,10 @@ def run_rewriter(
     grounding_explanations = []
     
     # Simple extraction of key words to query glossary (limit to top 4 distinct nodes for fast retrieval)
+    import re
+    token_re = re.compile(r"^\[[A-Z_]+_[0-9]{3}\]$")
     matched_glossary_terms = set()
-    distinct_nodes = [n for n in representation.nodes if len(n.text.strip()) > 10][:4]
+    distinct_nodes = [n for n in representation.nodes if len(n.text.strip()) > 10 and not token_re.match(n.text.strip())][:4]
     for node in distinct_nodes:
         # Search for node's text in hybrid index
         hits = hybrid_search(node.text, top_k=1)

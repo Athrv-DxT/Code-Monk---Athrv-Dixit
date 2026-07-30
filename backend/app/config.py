@@ -22,6 +22,12 @@ class Settings(BaseSettings):
     DISABLE_LOCAL_MODELS: bool = False # set to True on 512MB RAM limits (like Render Free)
     DEMO_OFFLINE_MODE: bool = False     # set to True for offline judging fallback
     
+    # Privacy & PII Masking Settings
+    ENABLE_PII_MASKING: bool = True
+    ENABLE_PII_LOGGING: bool = True
+    ENABLED_RECOGNIZERS: str = "all"
+    ENABLE_SPACY_NER: bool = False
+    
     # Path settings
     BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     LOG_DIR: str = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "logs")
