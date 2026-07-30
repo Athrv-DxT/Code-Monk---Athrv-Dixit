@@ -53,6 +53,60 @@ This builds and boots:
 
 ---
 
+## Local Development (Native Python & Node)
+
+If you do not want to use Docker locally, you can run the services natively:
+
+### 1. Backend Server Setup
+From the `backend` folder:
+```bash
+# Create and activate virtual environment
+python -m venv venv
+venv\Scripts\activate  # Windows
+source venv/bin/activate  # macOS/Linux
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the FastAPI server
+python -m uvicorn app.main:app --port 8000 --reload
+```
+
+### 2. Frontend App Setup
+From the `frontend` folder:
+```bash
+# Install dependencies
+npm install
+
+# Start the Vite development server
+npm run dev
+```
+Open [http://localhost:3000/](http://localhost:3000/) in your browser.
+
+---
+
+## Production Deployment
+
+Project Meridian is configured to easily deploy to low-resource hosted environments:
+
+### 1. Frontend (Vercel / Netlify)
+The frontend is a static React Single Page Application (SPA).
+*   **Vercel**: Deploy the `frontend/` subdirectory directly. Configured via [vercel.json](file:///d:/copilot/frontend/vercel.json) to handle SPA routing redirects.
+*   **Netlify**: Deploy `frontend/` directly. Configured via [netlify.toml](file:///d:/copilot/frontend/netlify.toml) and [_redirects](file:///d:/copilot/frontend/public/_redirects).
+*   **Environment Variables**: Set `VITE_API_URL` to your deployed backend URL.
+
+### 2. Backend (Render / Docker Web Service)
+The backend FastAPI application can be deployed as a Docker Web Service on Render:
+*   **Render Web Service**: Link your GitHub repository. Point it to the `backend/` directory and use the [Dockerfile](file:///d:/copilot/backend/Dockerfile).
+*   **Resource Constraints**: Render's free tier has a strict ~512MB RAM cap. We handle this dynamically by setting `DISABLE_LOCAL_MODELS=true` in Render's environment variables. This disables local Whisper and BGE model loading to conserve RAM, switching to mock fallbacks.
+*   **Logs**: Checkpoints pipe directly to `stdout` for Render's log aggregator.
+
+### 3. Graph Database (Neo4j AuraDB Free)
+*   Provision a managed Neo4j instance on **Neo4j AuraDB**.
+*   Update `NEO4J_URI` to `neo4j+s://<subdomain>.databases.neo4j.io` and configure your credentials. If AuraDB is offline, the backend gracefully degrades and continues processing adaptations.
+
+---
+
 ## API Documentation
 
 ### `POST /api/v1/adapt`
