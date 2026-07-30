@@ -82,6 +82,10 @@ def run_pipeline(
             else:
                 profile = AudienceProfile(**profile_dict)
                 
+            # Override profile preferred_language with options target language if provided
+            if options.get("language") and (options["language"] != "en" or profile.preferred_language == "en"):
+                profile.preferred_language = options["language"]
+                
             # 5. Strategy Engine
             strategy = resolve_strategy(domain, profile, run_id, checkpoint_logger)
             
@@ -123,8 +127,8 @@ def run_pipeline(
             # 8. Text-to-Speech (Optional)
             audio_url = ""
             if options.get("tts_output", False):
-                checkpoint_logger.log_event("TTS_GENERATION_STARTED", f"Generating audio for profile {profile.role}...")
-                audio_path = generate_tts(adapted_text, run_id, profile.role)
+                checkpoint_logger.log_event("TTS_GENERATION_STARTED", f"Generating audio for profile {profile.role} in language {profile.preferred_language}...")
+                audio_path = generate_tts(adapted_text, run_id, profile.role, profile.preferred_language)
                 if audio_path:
                     audio_url = f"/api/v1/audio/{run_id}/{profile.role}.mp3"
                     checkpoint_logger.log_event("TTS_GENERATION_COMPLETED", f"Audio generated at {audio_path}")

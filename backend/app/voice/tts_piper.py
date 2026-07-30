@@ -6,29 +6,104 @@ from app.config import settings
 
 logger = logging.getLogger("meridian.tts")
 
-async def _edge_tts_generate(text: str, output_path: str, role: str):
+async def _edge_tts_generate(text: str, output_path: str, role: str, language: Optional[str] = "en"):
     """
     Asynchronously generates TTS audio using edge-tts.
     Maps profiles to appropriate neural voices for premium UX.
     """
     import edge_tts
     
-    # Map role to fitting voice
-    voice_map = {
-        "child": "en-US-AnaNeural",         # Friendly child-like voice
-        "patient": "en-US-JennyNeural",      # Warm, reassuring female voice (anxious/medical)
-        "clinician": "en-US-GuyNeural",     # Professional male voice
-        "caregiver": "en-US-JennyNeural",   # Patient and warm
-        "general_adult": "en-US-ChristopherNeural" # Professional, clear standard
+    lang = (language or "en").lower().strip()
+    
+    voices = {
+        "en": {
+            "child": "en-US-AnaNeural",
+            "patient": "en-US-JennyNeural",
+            "clinician": "en-US-GuyNeural",
+            "caregiver": "en-US-JennyNeural",
+            "general_adult": "en-US-ChristopherNeural"
+        },
+        "hi": {
+            "child": "hi-IN-SwaraNeural",
+            "patient": "hi-IN-SwaraNeural",
+            "clinician": "hi-IN-MadhurNeural",
+            "caregiver": "hi-IN-SwaraNeural",
+            "general_adult": "hi-IN-MadhurNeural"
+        },
+        "bn": {
+            "general_adult": "bn-IN-BashkarNeural",
+            "patient": "bn-IN-TanishaNeural",
+            "child": "bn-IN-TanishaNeural"
+        },
+        "mr": {
+            "general_adult": "mr-IN-ManoharNeural",
+            "patient": "mr-IN-AarohiNeural",
+            "child": "mr-IN-AarohiNeural"
+        },
+        "te": {
+            "general_adult": "te-IN-MohanNeural",
+            "patient": "te-IN-ShrutiNeural",
+            "child": "te-IN-ShrutiNeural"
+        },
+        "ta": {
+            "general_adult": "ta-IN-ValluvarNeural",
+            "patient": "ta-IN-PallaviNeural",
+            "child": "ta-IN-PallaviNeural"
+        },
+        "gu": {
+            "general_adult": "gu-IN-NiranjanNeural",
+            "patient": "gu-IN-DhwaniNeural",
+            "child": "gu-IN-DhwaniNeural"
+        },
+        "kn": {
+            "general_adult": "kn-IN-GaganNeural",
+            "patient": "kn-IN-SapnaNeural",
+            "child": "kn-IN-SapnaNeural"
+        },
+        "ml": {
+            "general_adult": "ml-IN-MidhunNeural",
+            "patient": "ml-IN-SobhanaNeural",
+            "child": "ml-IN-SobhanaNeural"
+        },
+        "pa": {
+            "general_adult": "pa-IN-HarjitNeural",
+            "patient": "pa-IN-OjasNeural",
+            "child": "pa-IN-OjasNeural"
+        },
+        "or": {
+            "general_adult": "or-IN-SubhasiniNeural",
+            "patient": "or-IN-SubhasiniNeural",
+            "child": "or-IN-SubhasiniNeural"
+        },
+        "ur": {
+            "general_adult": "ur-IN-SalmanNeural",
+            "patient": "ur-IN-GulNeural",
+            "child": "ur-IN-GulNeural"
+        },
+        "es": {
+            "child": "es-ES-ElviraNeural",
+            "patient": "es-ES-ElviraNeural",
+            "clinician": "es-ES-AlvaroNeural",
+            "caregiver": "es-ES-ElviraNeural",
+            "general_adult": "es-ES-AlvaroNeural"
+        },
+        "fr": {
+            "child": "fr-FR-DeniseNeural",
+            "patient": "fr-FR-DeniseNeural",
+            "clinician": "fr-FR-HenriNeural",
+            "caregiver": "fr-FR-DeniseNeural",
+            "general_adult": "fr-FR-HenriNeural"
+        }
     }
     
-    selected_voice = voice_map.get(role, "en-US-ChristopherNeural")
-    logger.info(f"Generating voice with edge-tts using voice: {selected_voice}")
+    lang_voices = voices.get(lang, voices["en"])
+    selected_voice = lang_voices.get(role, list(lang_voices.values())[0])
+    logger.info(f"Generating voice with edge-tts using voice {selected_voice} for language {lang}")
     
     communicate = edge_tts.Communicate(text, selected_voice)
     await communicate.save(output_path)
 
-def generate_tts(text: str, run_id: str, role: str) -> Optional[str]:
+def generate_tts(text: str, run_id: str, role: str, language: Optional[str] = "en") -> Optional[str]:
     """
     Generates TTS audio file for the adapted text.
     First tries edge-tts (as the high-quality, zero-dependency default).
@@ -48,13 +123,12 @@ def generate_tts(text: str, run_id: str, role: str) -> Optional[str]:
     clean_text = clean_text[:1500]
     
     try:
-        # Use edge-tts (recommended fallback which acts as primary due to quality)
-        logger.info(f"Generating TTS for run {run_id}, role: {role}")
+        logger.info(f"Generating TTS for run {run_id}, role: {role}, language: {language}")
         
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         try:
-            loop.run_until_complete(_edge_tts_generate(clean_text, output_path, role))
+            loop.run_until_complete(_edge_tts_generate(clean_text, output_path, role, language))
         finally:
             loop.close()
             
