@@ -190,8 +190,8 @@ export default function App() {
   const [modality, setModality] = useState('text');
   
   const [multipleProfiles, setMultipleProfiles] = useState(false);
-  const [enableExternal, setEnableExternal] = useState(false);
-  const [generateTTS, setGenerateTTS] = useState(false);
+  const [enableExternal, setEnableExternal] = useState(true);
+  const [generateTTS, setGenerateTTS] = useState(true);
   
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -228,6 +228,58 @@ export default function App() {
       utterance.lang = 'en-US';
     }
     window.speechSynthesis.speak(utterance);
+  };
+
+  const startSilenceDetection = (stream, recorder, stopCallback) => {
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const source = audioContext.createMediaStreamSource(stream);
+      const analyser = audioContext.createAnalyser();
+      analyser.fftSize = 256;
+      source.connect(analyser);
+
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      const SILENCE_THRESHOLD = 15;
+      const SILENCE_DURATION = 1500;
+      let lastSoundTime = Date.now();
+
+      const checkAudio = () => {
+        if (recorder.state !== "recording") {
+          audioContext.close();
+          stream.getTracks().forEach(track => track.stop());
+          return;
+        }
+
+        analyser.getByteFrequencyData(dataArray);
+        let maxVolume = 0;
+        for (let i = 0; i < bufferLength; i++) {
+          if (dataArray[i] > maxVolume) {
+            maxVolume = dataArray[i];
+          }
+        }
+
+        if (maxVolume > SILENCE_THRESHOLD) {
+          lastSoundTime = Date.now();
+        } else {
+          const silenceMs = Date.now() - lastSoundTime;
+          if (silenceMs > SILENCE_DURATION) {
+            console.log("Silence detected. Auto-stopping recorder...");
+            stopCallback();
+            audioContext.close();
+            stream.getTracks().forEach(track => track.stop());
+            return;
+          }
+        }
+
+        requestAnimationFrame(checkAudio);
+      };
+
+      checkAudio();
+    } catch (e) {
+      console.error("Silence detection initialization failed:", e);
+    }
   };
 
   // Voice controller (Right Pane Mic)
@@ -283,6 +335,11 @@ export default function App() {
       setVoiceControlRecorder(recorder);
       setIsRecordingVoiceControl(true);
       speakText("Listening to voice command");
+      
+      startSilenceDetection(stream, recorder, () => {
+        recorder.stop();
+        setIsRecordingVoiceControl(false);
+      });
     } catch (e) {
       console.error(e);
     }
@@ -647,6 +704,11 @@ export default function App() {
       recorder.start();
       setMediaRecorder(recorder);
       setIsRecording(true);
+      
+      startSilenceDetection(stream, recorder, () => {
+        recorder.stop();
+        setIsRecording(false);
+      });
     } catch (err) {
       console.error(err);
       alert("Failed to access microphone.");
@@ -701,6 +763,11 @@ export default function App() {
       recorder.start();
       setMediaRecorder(recorder);
       setIsRecordingNarration(true);
+      
+      startSilenceDetection(stream, recorder, () => {
+        recorder.stop();
+        setIsRecordingNarration(false);
+      });
     } catch (err) {
       console.error(err);
       alert("Failed to access microphone.");
@@ -1042,35 +1109,6 @@ export default function App() {
                 </div>
               </div>
             )}
-          </div>
-
-          <div className="row-controls">
-            <label className="checkbox-label" onMouseEnter={() => speakText("Checkbox: Generate 4 Presets simultaneously")}>
-              <input 
-                type="checkbox" 
-                checked={multipleProfiles}
-                onChange={(e) => setMultipleProfiles(e.target.checked)}
-              />
-              Generate 4 Presets Simultaneously
-            </label>
-
-            <label className="checkbox-label" onMouseEnter={() => speakText("Checkbox: Enable external search lookups")}>
-              <input 
-                type="checkbox" 
-                checked={enableExternal}
-                onChange={(e) => setEnableExternal(e.target.checked)}
-              />
-              Enable Tavily Web Lookups
-            </label>
-            
-            <label className="checkbox-label" onMouseEnter={() => speakText("Checkbox: Generate audio version")}>
-              <input 
-                type="checkbox" 
-                checked={generateTTS}
-                onChange={(e) => setGenerateTTS(e.target.checked)}
-              />
-              Generate Audio Version (TTS)
-            </label>
           </div>
 
           <button 
