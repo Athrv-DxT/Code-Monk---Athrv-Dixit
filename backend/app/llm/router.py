@@ -21,47 +21,13 @@ def generate_response(
         logger.info("DEMO_OFFLINE_MODE active. Returning mock response.")
         return get_offline_mock_response(prompt, system_instruction, json_mode), "offline_mock"
 
-    errors = []
-    
-    # 1. Primary: Gemini
-    if settings.GEMINI_API_KEY:
-        try:
-            logger.info("Attempting primary LLM call via Gemini...")
-            res = call_gemini(
-                prompt=prompt, 
-                system_instruction=system_instruction, 
-                json_mode=json_mode,
-                response_schema=response_schema
-            )
-            return res, "gemini"
-        except Exception as e:
-            logger.warning(f"Primary provider Gemini failed: {e}")
-            errors.append(f"Gemini error: {e}")
-    else:
-        logger.warning("GEMINI_API_KEY is not set.")
-        errors.append("Gemini: GEMINI_API_KEY missing")
-
-    # 2. Fallback: Groq
-    if settings.GROQ_API_KEY:
-        try:
-            logger.info("Attempting fallback LLM call via Groq...")
-            res = call_groq(
-                prompt=prompt, 
-                system_instruction=system_instruction, 
-                json_mode=json_mode
-            )
-            return res, "groq"
-        except Exception as e:
-            logger.error(f"Fallback provider Groq failed: {e}")
-            errors.append(f"Groq error: {e}")
-    else:
-        logger.warning("GROQ_API_KEY is not set for fallback.")
-        errors.append("Groq: GROQ_API_KEY missing")
-
-    # If both failed or keys are missing
-    err_msg = "All configured LLM providers failed. Details: " + " | ".join(errors)
-    logger.critical(err_msg)
-    raise RuntimeError(err_msg)
+    from app.llm.failover_manager import failover_manager
+    return failover_manager.execute_with_failover(
+        prompt=prompt,
+        system_instruction=system_instruction,
+        json_mode=json_mode,
+        response_schema=response_schema
+    )
 
 def get_offline_mock_response(prompt: str, system_instruction: Optional[str], json_mode: bool) -> str:
     """

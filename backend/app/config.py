@@ -5,8 +5,50 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     # LLM Keys
     GEMINI_API_KEY: str
+    GEMINI_API_KEY_1: Optional[str] = None
+    GEMINI_API_KEY_2: Optional[str] = None
+    GEMINI_API_KEY_3: Optional[str] = None
     GROQ_API_KEY: Optional[str] = None
+    GROQ_API_KEY_1: Optional[str] = None
+    GROQ_API_KEY_2: Optional[str] = None
     TAVILY_API_KEY: Optional[str] = None
+
+    def get_gemini_keys(self) -> list[str]:
+        keys = []
+        # Check standard defined attributes first
+        for field in ["GEMINI_API_KEY", "GEMINI_API_KEY_1", "GEMINI_API_KEY_2", "GEMINI_API_KEY_3"]:
+            val = getattr(self, field, None)
+            if val and val.strip():
+                if val.strip() not in keys:
+                    keys.append(val.strip())
+        # Also dynamically scan environment for other GEMINI_API_KEY_x keys
+        # We sort them by variable name to keep order consistent
+        numbered_keys = []
+        for k, v in os.environ.items():
+            if k.startswith("GEMINI_API_KEY_") and v.strip():
+                numbered_keys.append((k, v.strip()))
+        numbered_keys.sort(key=lambda item: item[0])
+        for _, val in numbered_keys:
+            if val not in keys:
+                keys.append(val)
+        return keys
+
+    def get_groq_keys(self) -> list[str]:
+        keys = []
+        for field in ["GROQ_API_KEY", "GROQ_API_KEY_1", "GROQ_API_KEY_2"]:
+            val = getattr(self, field, None)
+            if val and val.strip():
+                if val.strip() not in keys:
+                    keys.append(val.strip())
+        numbered_keys = []
+        for k, v in os.environ.items():
+            if k.startswith("GROQ_API_KEY_") and v.strip():
+                numbered_keys.append((k, v.strip()))
+        numbered_keys.sort(key=lambda item: item[0])
+        for _, val in numbered_keys:
+            if val not in keys:
+                keys.append(val)
+        return keys
 
     # Neo4j Settings
     NEO4J_URI: str = "bolt://localhost:7687"

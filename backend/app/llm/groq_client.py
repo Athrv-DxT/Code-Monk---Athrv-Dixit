@@ -9,18 +9,20 @@ logger = logging.getLogger("meridian.groq")
 def call_groq(
     prompt: str, 
     system_instruction: Optional[str] = None, 
-    json_mode: bool = False
+    json_mode: bool = False,
+    api_key: Optional[str] = None
 ) -> str:
     """
     Calls Groq API (llama-3.3-70b-versatile) using OpenAI-compatible endpoint.
     """
-    if not settings.GROQ_API_KEY:
-        raise ValueError("GROQ_API_KEY is not set.")
+    target_key = api_key or settings.GROQ_API_KEY
+    if not target_key:
+        raise ValueError("Groq API key is not configured.")
         
     url = "https://api.groq.com/openai/v1/chat/completions"
     headers = {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {settings.GROQ_API_KEY}"
+        "Authorization": f"Bearer {target_key}"
     }
     
     messages = []

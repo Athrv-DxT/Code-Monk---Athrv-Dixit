@@ -37,14 +37,16 @@ def adapt_document(request: AdaptRequest):
 @router.get("/health")
 def health_check():
     """
-    Checks backend health and connection status to Neo4j.
+    Checks backend health, Neo4j, and LLM Provider health statuses.
     """
+    from app.llm.failover_manager import failover_manager
     neo4j_driver = get_driver()
     neo4j_status = "connected" if neo4j_driver else "offline"
     return {
         "status": "ok",
         "neo4j": neo4j_status,
-        "env": settings.ENV
+        "env": settings.ENV,
+        "llm_providers": failover_manager.get_providers_status()
     }
 
 @router.post("/transcribe")

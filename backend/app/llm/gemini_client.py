@@ -10,15 +10,17 @@ def call_gemini(
     prompt: str, 
     system_instruction: Optional[str] = None, 
     json_mode: bool = False,
-    response_schema: Optional[Dict[str, Any]] = None
+    response_schema: Optional[Dict[str, Any]] = None,
+    api_key: Optional[str] = None
 ) -> str:
     """
-    Calls the Google Gemini API (gemini-2.5-flash) using httpx.
+    Calls the Google Gemini API (gemini-1.5-flash) using httpx.
     """
-    if not settings.GEMINI_API_KEY:
-        raise ValueError("GEMINI_API_KEY is not set.")
+    target_key = api_key or settings.GEMINI_API_KEY
+    if not target_key:
+        raise ValueError("Gemini API key is not configured.")
     
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={settings.GEMINI_API_KEY}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={target_key}"
     
     headers = {"Content-Type": "application/json"}
     
