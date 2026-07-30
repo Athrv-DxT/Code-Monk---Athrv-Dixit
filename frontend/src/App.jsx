@@ -1055,62 +1055,6 @@ export default function App() {
             </div>
           )}
 
-          {/* Profile selector */}
-          <div className="form-group">
-            <label onMouseEnter={() => speakText("Adaptation Target Profile Preset. Choose the target audience profile.")}>Adaptation Target Profile Preset:</label>
-            <div className="presets-grid">
-              {PROFILE_PRESETS.map((preset) => (
-                <button 
-                  key={preset.id}
-                  className={`preset-card ${selectedProfile === preset.id && !customProfile ? 'active' : ''}`}
-                  onClick={() => { setSelectedProfile(preset.id); setCustomProfile(false); }}
-                  onMouseEnter={() => speakText(`Preset option: ${preset.label}. Description: ${preset.desc}`)}
-                >
-                  <h3>{preset.label}</h3>
-                  <p>{preset.desc}</p>
-                </button>
-              ))}
-            </div>
-          </div>
-          
-          {/* Options */}
-          <div className="form-group">
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }} onMouseEnter={() => speakText("Custom profile override settings")}>
-              <Settings size={14} /> Custom Profile Overrides:
-              <input 
-                type="checkbox" 
-                checked={customProfile} 
-                onChange={(e) => setCustomProfile(e.target.checked)} 
-                style={{ marginLeft: 'auto' }}
-              />
-            </label>
-            
-            {customProfile && (
-              <div className="glass" style={{ padding: '1rem', marginTop: '0.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div className="form-group">
-                  <label onMouseEnter={() => speakText("Custom role dropdown")}>Role</label>
-                  <select value={role} onChange={(e) => setRole(e.target.value)} style={{ padding: '0.5rem', background: '#0a0e1a', color: 'white', border: '1px solid var(--border-color)', borderRadius: '4px' }}>
-                    <option value="patient">Patient</option>
-                    <option value="caregiver">Caregiver</option>
-                    <option value="clinician">Clinician</option>
-                    <option value="child">Child</option>
-                    <option value="general_adult">General Adult</option>
-                  </select>
-                </div>
-                
-                <div className="form-group">
-                  <label onMouseEnter={() => speakText("Custom cognitive access needs dropdown")}>Access Needs</label>
-                  <select value={needs} onChange={(e) => setNeeds(e.target.value)} style={{ padding: '0.5rem', background: '#0a0e1a', color: 'white', border: '1px solid var(--border-color)', borderRadius: '4px' }}>
-                    <option value="standard">Standard</option>
-                    <option value="low_cognitive_load">Low Cognitive Load</option>
-                    <option value="dyslexia_friendly">Dyslexia Friendly</option>
-                    <option value="anxiety_aware">Anxiety Aware</option>
-                  </select>
-                </div>
-              </div>
-            )}
-          </div>
-
           <button 
             className="btn btn-primary" 
             onClick={() => handleAdapt()} 
