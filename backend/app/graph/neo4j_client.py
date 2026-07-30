@@ -7,15 +7,18 @@ from app.core.models import StructuredMeaningRepresentation, MeaningNode, Meanin
 logger = logging.getLogger("meridian.neo4j")
 
 _driver: Optional[Driver] = None
+_connection_attempted: bool = False
 
 def get_driver() -> Optional[Driver]:
-    global _driver
-    if _driver is None:
+    global _driver, _connection_attempted
+    if _driver is None and not _connection_attempted:
+        _connection_attempted = True
         try:
             logger.info(f"Connecting to Neo4j at {settings.NEO4J_URI}...")
             _driver = GraphDatabase.driver(
                 settings.NEO4J_URI, 
-                auth=(settings.NEO4J_USER, settings.NEO4J_PASSWORD)
+                auth=(settings.NEO4J_USER, settings.NEO4J_PASSWORD),
+                connection_timeout=0.5
             )
             # Verify connectivity
             _driver.verify_connectivity()

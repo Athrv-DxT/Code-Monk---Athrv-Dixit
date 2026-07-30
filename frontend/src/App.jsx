@@ -400,7 +400,13 @@ export default function App() {
       speakText("Langue d'affichage changée en français.");
       if (content.trim()) handleAdapt(content, 'fr');
     } else {
-      speakText(`Understood command: ${commandText}`);
+      if (content.trim()) {
+        speakText(uiLanguage === 'hi' ? "आपकी आवाज़ का अनुरोध प्राप्त हुआ, दस्तावेज़ पर काम कर रहे हैं..." : "Processing your spoken request on the document...");
+        setVoiceNarration(commandText);
+        handleAdapt(content, uiLanguage, selectedProfile, commandText);
+      } else {
+        speakText(uiLanguage === 'hi' ? "कृपया पहले दस्तावेज़ सामग्री अपलोड करें या पेस्ट करें।" : "Please upload or paste document content first.");
+      }
     }
   };
 
@@ -528,7 +534,7 @@ export default function App() {
   };
 
   // Run the adaptation pipeline
-  const handleAdapt = async (forcedContent, targetLang) => {
+  const handleAdapt = async (forcedContent, targetLang, targetProfile, voiceNarrationText) => {
     const contentToUse = typeof forcedContent === 'string' ? forcedContent : content;
     if (!contentToUse.trim()) return;
     setLoading(true);
@@ -543,6 +549,8 @@ export default function App() {
     }
 
     const langToUse = targetLang || uiLanguage;
+    const profileToUse = targetProfile || selectedProfile;
+    const narrationToUse = voiceNarrationText || voiceNarration || null;
 
     const payload = {
       content: contentToUse,
@@ -553,14 +561,14 @@ export default function App() {
         preferred_language: langToUse,
         modality: modality
       } : null,
-      voice_narration: voiceNarration || null,
+      voice_narration: narrationToUse,
       options: {
         generate_multiple_profiles: multipleProfiles,
-        profiles: multipleProfiles ? ['general_adult', 'anxious', 'child', 'clinician'] : [selectedProfile],
+        profiles: multipleProfiles ? ['general_adult', 'anxious', 'child', 'clinician'] : [profileToUse],
         include_fidelity_note: true,
         language: langToUse,
         enable_external_lookup: enableExternal,
-        tts_output: generateTTS || !!voiceNarration
+        tts_output: generateTTS || !!narrationToUse
       }
     };
     

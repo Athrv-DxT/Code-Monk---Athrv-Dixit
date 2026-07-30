@@ -18,7 +18,7 @@ def call_gemini(
     if not settings.GEMINI_API_KEY:
         raise ValueError("GEMINI_API_KEY is not set.")
     
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={settings.GEMINI_API_KEY}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={settings.GEMINI_API_KEY}"
     
     headers = {"Content-Type": "application/json"}
     
@@ -47,7 +47,7 @@ def call_gemini(
         
     try:
         logger.info("Calling Gemini API...")
-        with httpx.Client(timeout=30.0) as client:
+        with httpx.Client(timeout=8.0) as client:
             response = client.post(url, json=contents, headers=headers)
             response.raise_for_status()
             res_data = response.json()

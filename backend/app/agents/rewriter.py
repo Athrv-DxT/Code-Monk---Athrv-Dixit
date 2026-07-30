@@ -29,10 +29,11 @@ def run_rewriter(
     checkpoint_logger.log_event("RETRIEVAL_STARTED", "Starting hybrid search for document terminology grounding.")
     grounding_explanations = []
     
-    # Simple extraction of key words to query glossary (e.g. searching terms present in source text)
+    # Simple extraction of key words to query glossary (limit to top 4 distinct nodes for fast retrieval)
     matched_glossary_terms = set()
-    for node in representation.nodes:
-        # Search for each node's text in hybrid index
+    distinct_nodes = [n for n in representation.nodes if len(n.text.strip()) > 10][:4]
+    for node in distinct_nodes:
+        # Search for node's text in hybrid index
         hits = hybrid_search(node.text, top_k=1)
         for hit in hits:
             # Prevent duplicates
