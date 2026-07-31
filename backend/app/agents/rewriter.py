@@ -153,11 +153,20 @@ GROUNDING CONTEXT (OPTIONAL TERMINOLOGY EXPLANATIONS):
     except Exception as e:
         logger.error(f"Rewrite failed: {e}")
         checkpoint_logger.fail_stage("REWRITE_STARTED", str(e))
+        # LLM unavailable — use rule-based simplifier so the output is still useful
+        try:
+            from app.utils.document_simplifier import simplify_document
+            lang_display = lang_map.get(profile.preferred_language.lower(), "English")
+            simplified = simplify_document(content, profile.role, lang_display)
+            logger.info("[Rewriter] Rule-based simplifier produced fallback accessibility output.")
+        except Exception as e2:
+            logger.error(f"Rule-based simplifier also failed: {e2}")
+            simplified = content
         return {
-            "adapted_content": content,
-            "gaps": ["Error running rewriter. Outputting original text."],
+            "adapted_content": simplified,
+            "gaps": ["AI-based semantic rewriter was unavailable. Rule-based simplification was used instead."],
             "explanations_retrieved": "",
-            "strategy_summary": "Fallback (Original Text)"
+            "strategy_summary": "Fallback (Rule-Based Simplifier)"
         }
 
 def run_rewriter_stream(
@@ -167,6 +176,7 @@ def run_rewriter_stream(
 ) -> Generator[Dict[str, Any], None, None]:
     """
     Runs rewriter in streaming mode. Yields completed sections one by one.
+    Falls back to rule-based simplifier if LLM stream fails.
     Yields Dict: {"section": "Section Title", "content": "Section text body", "provider": "provider_name"}
     """
     lang_map = {
@@ -195,54 +205,96 @@ Please write the complete accessibility adapted document based on this plan.
 """
     
     from app.llm.router import generate_response_stream
-    token_stream = generate_response_stream(prompt, system_instruction=system_prompt)
     
     import re
     buffer = ""
+    sections_yielded = 0
     
-    for chunk, provider in token_stream:
-        buffer += chunk
+    try:
+        token_stream = generate_response_stream(prompt, system_instruction=system_prompt)
         
-        while True:
+        for chunk, provider in token_stream:
+            buffer += chunk
+            
+            while True:
+                parts = buffer.split("### ")
+                if len(parts) >= 3:
+                    section_part = parts[1]
+                    section_lines = section_part.split("\n", 1)
+                    title = section_lines[0].strip().replace("---", "").strip()
+                    content = section_lines[1] if len(section_lines) > 1 else ""
+                    
+                    content_clean = re.sub(r'-{10,}', '', content).strip()
+                    
+                    yield {
+                        "section": title,
+                        "content": content_clean,
+                        "provider": provider
+                    }
+                    sections_yielded += 1
+                    buffer = "### " + "### ".join(parts[2:])
+                else:
+                    break
+                    
+        if buffer.strip():
             parts = buffer.split("### ")
-            if len(parts) >= 3:
-                section_part = parts[1]
-                section_lines = section_part.split("\n", 1)
+            for part in parts:
+                if not part.strip():
+                    continue
+                section_lines = part.split("\n", 1)
                 title = section_lines[0].strip().replace("---", "").strip()
                 content = section_lines[1] if len(section_lines) > 1 else ""
-                
                 content_clean = re.sub(r'-{10,}', '', content).strip()
                 
-                yield {
-                    "section": title,
-                    "content": content_clean,
-                    "provider": provider
-                }
-                
-                buffer = "### " + "### ".join(parts[2:])
-            else:
-                break
-                
-    if buffer.strip():
-        parts = buffer.split("### ")
-        for part in parts:
-            if not part.strip():
-                continue
-            section_lines = part.split("\n", 1)
-            title = section_lines[0].strip().replace("---", "").strip()
-            content = section_lines[1] if len(section_lines) > 1 else ""
-            content_clean = re.sub(r'-{10,}', '', content).strip()
+                if "PROFILE & STRATEGY" in title.upper():
+                    continue
+                if "GAPS & UNCERTAINTIES" in title.upper():
+                    yield {
+                        "section": "Gaps and Uncertainties",
+                        "content": content_clean,
+                        "is_gaps": True
+                    }
+                else:
+                    yield {
+                        "section": title,
+                        "content": content_clean
+                    }
+                sections_yielded += 1
+
+    except Exception as e:
+        logger.error(f"[RewriterStream] LLM streaming failed: {e}. Using rule-based simplifier fallback.")
+        
+    # If no sections came through (LLM failed), use rule-based fallback
+    if sections_yielded == 0:
+        logger.info("[RewriterStream] No sections yielded. Activating rule-based simplifier.")
+        try:
+            from app.utils.document_simplifier import simplify_document
+            # Extract raw content from the planner plan if possible
+            raw_content = planner_plan.get("_raw_content", "") if planner_plan else ""
+            if not raw_content:
+                raw_content = planner_plan.get("summary", "") if planner_plan else ""
+            simplified = simplify_document(raw_content or str(planner_plan), profile.role, target_language)
             
-            if "PROFILE & STRATEGY" in title.upper():
-                continue
-            if "GAPS & UNCERTAINTIES" in title.upper():
-                yield {
-                    "section": "Gaps and Uncertainties",
-                    "content": content_clean,
-                    "is_gaps": True
-                }
-            else:
-                yield {
-                    "section": title,
-                    "content": content_clean
-                }
+            # Parse the simplified text into sections by ### headers
+            section_parts = simplified.split("### ")
+            for part in section_parts:
+                if not part.strip():
+                    continue
+                section_lines = part.split("\n", 1)
+                title = section_lines[0].strip().replace("---", "").strip()
+                content = section_lines[1] if len(section_lines) > 1 else ""
+                content_clean = re.sub(r'-{10,}', '', content).strip()
+                if title and content_clean:
+                    yield {
+                        "section": title,
+                        "content": content_clean,
+                        "provider": "rule_based_simplifier"
+                    }
+        except Exception as e2:
+            logger.error(f"[RewriterStream] Rule-based simplifier also failed: {e2}")
+            yield {
+                "section": "Document Summary",
+                "content": "The document adaptation service is temporarily unavailable. Please try again shortly.",
+                "provider": "error_fallback"
+            }
+

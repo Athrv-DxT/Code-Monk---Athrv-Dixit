@@ -165,6 +165,9 @@ async def run_pipeline(
             from app.agents.accessibility_planner import plan_accessibility
             start_planner = time.time()
             planner_plan = plan_accessibility(content, representation, profile, run_id, checkpoint_logger)
+            # Inject raw content for rule-based fallback access
+            if isinstance(planner_plan, dict):
+                planner_plan["_raw_content"] = content
             planner_time = time.time() - start_planner
             
             # 7. Rewriter (using planner JSON, in English first)
@@ -379,6 +382,9 @@ async def run_pipeline_stream(
         
         # Accessibility Planning
         planner_plan = plan_accessibility(content, representation, profile, run_id, checkpoint_logger)
+        # Inject raw content for rule-based fallback access
+        if isinstance(planner_plan, dict):
+            planner_plan["_raw_content"] = content
         
         # Yield metadata early
         yield {
