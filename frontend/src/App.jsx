@@ -203,6 +203,7 @@ export default function App() {
   const [audioEl, setAudioEl] = useState(null);
   
   const [urlInput, setUrlInput] = useState('');
+  const [uploadedFileName, setUploadedFileName] = useState('');
   const [activeInputMode, setActiveInputMode] = useState('text');
   const [voiceNarration, setVoiceNarration] = useState('');
   const [isRecordingNarration, setIsRecordingNarration] = useState(false);
@@ -517,6 +518,7 @@ export default function App() {
 
   // Standard preset sample documents
   const loadSampleDoc = (type) => {
+    setUploadedFileName('');
     if (type === 'admin') {
       setContent(
         "IMPORTANT NOTICE TO ALL TENANTS: ANNUAL SAFETY STANDARDS REGULATION UPDATE\n\n" +
@@ -599,11 +601,6 @@ export default function App() {
       // Fetch logs and graph
       fetchLogs(data.run_id);
       fetchGraph(data.run_id);
-
-      // Automatically read results aloud (Task 2 request)
-      if (data.versions && data.versions[0]) {
-        speakText(data.versions[0].adapted_content);
-      }
       
     } catch (err) {
       console.error(err);
@@ -888,6 +885,7 @@ export default function App() {
 
   const handleFetchUrl = async () => {
     if (!urlInput.trim()) return;
+    setUploadedFileName('');
     setLoading(true);
     try {
       const res = await fetch(`${API_HOST}/api/v1/fetch-url`, {
@@ -925,6 +923,7 @@ export default function App() {
       if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
       if (data.text) {
+        setUploadedFileName(file.name);
         setContent(data.text);
         speakText("Uploaded and parsed file. Commencing adaptation.");
         await handleAdapt(data.text);
@@ -1135,6 +1134,18 @@ export default function App() {
                   onChange={handleFileUpload} 
                 />
               </div>
+
+              {uploadedFileName && (
+                <div style={{ marginTop: '0.75rem', padding: '0.5rem 0.75rem', background: 'rgba(59, 130, 246, 0.15)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '6px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#60a5fa' }}>
+                  <span>📄 Loaded File: <strong>{uploadedFileName}</strong></span>
+                  <button 
+                    onClick={() => { setUploadedFileName(''); setContent(''); speakText("Cleared file"); }} 
+                    style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 'bold' }}
+                  >
+                    Clear
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
