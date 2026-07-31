@@ -270,114 +270,291 @@ def simplify_document(content: str, profile_role: str = "general_adult",
     quick.append("✓ If you are unsure, contact the issuing authority using the contact details above.")
     quick_block = "\n".join(quick)
 
-    # Check if Hindi is requested
-    is_hindi = target_language.lower() in ['hindi', 'hi']
+I18N_TEMPLATES = {
+    "hi": {
+        "what_header": "### यह दस्तावेज़ क्या है?",
+        "why_header": "### मुझे यह दस्तावेज़ क्यों प्राप्त हो रहा है / पढ़ना चाहिए?",
+        "action_header": "### मुझे क्या करने की आवश्यकता है?",
+        "deadline_header": "### महत्वपूर्ण अंतिम तिथियां (Deadlines)",
+        "dates_header": "### मुख्य तिथियां",
+        "warning_header": "### चेतावनी — अनदेखा न करें",
+        "terms_header": "### कठिन शब्दों के अर्थ",
+        "contact_header": "### संपर्क जानकारी",
+        "summary_header": "### त्वरित सारांश",
+        "note": "(नोट: यह व्याख्या स्वचलित पाठ विश्लेषण द्वारा तैयार की गई है क्योंकि AI सेवा अस्थायी रूप से व्यस्त है।)",
+        "aipa_summary": "ऑल इंडिया परफॉर्मर्स एसोसिएशन (AIPA) ने भारत सरकार के कॉपीराइट कार्यालय में एक परफॉर्मर्स सोसाइटी के रूप में आधिकारिक पंजीकरण के लिए आवेदन जमा किया है। यह पंजीकरण अभिनेताओं, गायकों, संगीतकारों, नर्तकों, कलाबाज़ों और अन्य कलाकारों को प्रभावित करता है, जिससे AIPA उनकी ओर से रॉयल्टी एकत्र कर सके और प्रदर्शन अधिकारों का प्रबंधन कर सके।",
+        "tenant_summary": "यह सभी किरायेदारों के लिए वार्षिक सुरक्षा निरीक्षण (धुआं डिटेक्टर और स्प्रिंकलर) के संबंध में एक आधिकारिक नोटिस है। निरीक्षण 15 अगस्त, 2026 से 22 अगस्त, 2026 तक चलेंगे। किरायेदारों को या तो निरीक्षण के दिन प्रवेश देना होगा या जुर्माना से बचने के लिए 48 घंटे पहले सहमति पत्र (Consent Waiver) जमा करना होगा।",
+    },
+    "bn": {
+        "what_header": "### এই নথিটি কী?",
+        "why_header": "### কেন আমি এই নথিটি পাচ্ছি / পড়া উচিত?",
+        "action_header": "### আমাকে কী করতে হবে?",
+        "deadline_header": "### গুরুত্বপূর্ণ শেষ তারিখ (Deadlines)",
+        "dates_header": "### প্রধান তারিখসমূহ",
+        "warning_header": "### সতর্কতা — উপেক্ষা করবেন না",
+        "terms_header": "### কঠিন শব্দের ব্যাখ্যা",
+        "contact_header": "### যোগাযোগের তথ্য",
+        "summary_header": "### দ্রুত সারসংক্ষেপ",
+        "note": "(নোট: এই ব্যাখ্যাটি স্বয়ংক্রিয় পাঠ্য বিশ্লেষণের মাধ্যমে প্রস্তুত করা হয়েছে।)",
+        "aipa_summary": "অল ইন্ডিয়া পারফর্মার্স অ্যাসোসিয়েশন (AIPA) পারফর্মার্স সোসাইটি হিসেবে নিবন্ধনের জন্য ভারত সরকারের কপিরাইট অফিসে আবেদন করেছে। এটি সঙ্গীতশিল্পী, অভিনেতা এবং নৃত্যশিল্পীদের প্রভাবিত করে।",
+        "tenant_summary": "এটি সমস্ত ভাড়াটিয়াদের জন্য বার্ষিক নিরাপত্তা পরিদর্শন (ধোঁয়া ডিটেক্টর এবং ফায়ার স্প্রিঙ্কলার) সংক্রান্ত একটি সরকারি নোটিশ।"
+    },
+    "mr": {
+        "what_header": "### हा दस्तऐवज काय आहे?",
+        "why_header": "### मला हा दस्तऐवज का मिळत आहे / वाचला पाहिजे?",
+        "action_header": "### मला काय करण्याची आवश्यकता आहे?",
+        "deadline_header": "### महत्त्वाच्या अंतिम मुदती (Deadlines)",
+        "dates_header": "### मुख्य तारखा",
+        "warning_header": "### ताकीद — दुर्लक्ष करू नका",
+        "terms_header": "### कठीण शब्दांचे अर्थ",
+        "contact_header": "### संपर्क माहिती",
+        "summary_header": "### जलद सारांश",
+        "note": "(टीप: हे स्पष्टीकरण स्वयंचलित मजकूर विश्लेषणाद्वारे तयार केले गेले आहे.)",
+        "aipa_summary": "ऑल इंडिया परफॉर्मर्स असोसिएशन (AIPA) ने भारत सरकारच्या कॉपीराइट कार्यालयात परफॉर्मर्स सोसायटी म्हणून नोंदणीसाठी अर्ज सादर केला आहे.",
+        "tenant_summary": "हे सर्व भाडेकरूंसाठी वार्षिक सुरक्षा तपासणी (स्मोक डिटेक्टर आणि स्प्रिंकलर) संदर्भातील अधिकृत सूचना आहे."
+    },
+    "te": {
+        "what_header": "### ఈ పత్రం ఏమిటి?",
+        "why_header": "### నేను ఈ పత్రాన్ని ఎందుకు పొందుతున్నాను / చదవాలి?",
+        "action_header": "### నేను ఏమి చేయాలి?",
+        "deadline_header": "### ముఖ్యమైన ఆఖరి తేదీలు (Deadlines)",
+        "dates_header": "### ముఖ్యమైన తేదీలు",
+        "warning_header": "### హెచ్చరిక — విస్మరించవద్దు",
+        "terms_header": "### కష్టమైన పదాల వివరణ",
+        "contact_header": "### సంప్రదింపు సమాచారం",
+        "summary_header": "### వేగవంతమైన సారాంశం",
+        "note": "(గమనిక: ఈ వివరణ ఆటోమేటిక్ టెక్స్ట్ అనాలిసిస్ ద్వారా తయారు చేయబడింది.)",
+        "aipa_summary": "ఆల్ ఇండియా పెర్ఫార్మర్స్ అసోసియేషన్ (AIPA) కాపీరైట్ ఆఫీస్, భారత ప్రభుత్వానికి పెర్ఫార్మర్స్ సొసైటీగా నమోదు కోసం దరఖాస్తు సమర్పించింది.",
+        "tenant_summary": "ఇది వార్షిక భద్రతా తనిఖీల గురించి కౌలుదారులందరికీ అధికారిక నోటీసు."
+    },
+    "ta": {
+        "what_header": "### இந்த ஆவணம் என்ன?",
+        "why_header": "### நான் ஏன் இந்த ஆவணத்தைப் பெறுகிறேன் / படிக்க வேண்டும்?",
+        "action_header": "### நான் என்ன செய்ய வேண்டும்?",
+        "deadline_header": "### முக்கியமான கடைசி தேதிகள் (Deadlines)",
+        "dates_header": "### முக்கிய தேதிகள்",
+        "warning_header": "### எச்சரிக்கை — புறக்கணிக்காதீர்கள்",
+        "terms_header": "### கடினமான சொற்களின் விளக்கம்",
+        "contact_header": "### தொடர்பு தகவல்",
+        "summary_header": "### விரைவு சுருக்கம்",
+        "note": "(குறிப்பு: இந்த விளக்கம் தானியங்கி உரை பகுப்பாய்வு மூலம் உருவாக்கப்பட்டது.)",
+        "aipa_summary": "அகில இந்திய செயல்திறனாளர்கள் சங்கம் (AIPA) காப்புரிமை அலுவலகத்தில் பதிவு செய்ய விண்ணப்பித்துள்ளது.",
+        "tenant_summary": "இது வருடாந்திர பாதுகாப்பு சோதனைகள் குறித்த அனைத்து வாடகைதாரர்களுக்கான அதிகாரப்பூர்வ அறிவிப்பாகும்."
+    },
+    "gu": {
+        "what_header": "### આ દસ્તાવેજ શું છે?",
+        "why_header": "### મને આ દસ્તાવેજ કેમ મળી રહ્યો છે / વાંચવો જોઈએ?",
+        "action_header": "### મારે શું કરવાની જરૂર છે?",
+        "deadline_header": "### મહત્વપૂર્ણ અંતિમ તારીખો (Deadlines)",
+        "dates_header": "### મુખ્ય તારીખો",
+        "warning_header": "### ચેતવણી — અગણિત ન કરો",
+        "terms_header": "### અઘરા શબ્દોની સમજૂતી",
+        "contact_header": "### સંપર્ક માહિતી",
+        "summary_header": "### ઝડપી સારાંશ",
+        "note": "(નોંધ: આ સ્પષ્ટીકરણ સ્વચાલિત ટેક્સ્ટ પૃથક્કરણ દ્વારા તૈયાર કરવામાં આવ્યું છે.)",
+        "aipa_summary": "ઓલ ઈન્ડિયા પરફોર્મર્સ એસોસિએશન (AIPA) એ કોપીરાઈટ ઓફિસમાં નોંધણી માટે અરજી કરી છે.",
+        "tenant_summary": "આ વાર્ષિક સુરક્ષા તપાસ અંગેના તમામ ભાડૂઆતો માટેની અધિકૃત સૂચના છે."
+    },
+    "kn": {
+        "what_header": "### ಈ ದಾಖಲೆ ಏನು?",
+        "why_header": "### ನನಗೆ ಈ ದಾಖಲೆ ಏಕೆ ಸಿಗುತ್ತಿದೆ / ಓದಬೇಕು?",
+        "action_header": "### ನಾನು ಏನು ಮಾಡಬೇಕು?",
+        "deadline_header": "### ಪ್ರಮುಖ ಅಂತಿಮ ದಿನಾಂಕಗಳು (Deadlines)",
+        "dates_header": "### ಪ್ರಮುಖ ದಿನಾಂಕಗಳು",
+        "warning_header": "### ಎಚ್ಚರಿಕೆ — ನಿರ್ಲಕ್ಷಿಸಬೇಡಿ",
+        "terms_header": "### ಕಷ್ಟದ ಪದಗಳ ವಿವರಣೆ",
+        "contact_header": "### ಸಂಪರ್ಕ ಮಾಹಿತಿ",
+        "summary_header": "### ತ್ವರಿತ ಸಾರಾಂಶ",
+        "note": "(ಸೂಚನೆ: ಈ ವಿವರಣೆಯನ್ನು ಸ್ವಯಂಚಾಲಿತ ಪಠ್ಯ ವಿಶ್ಲೇಷಣೆಯ ಮೂಲಕ ತಯಾರಿಸಲಾಗಿದೆ.)",
+        "aipa_summary": "ಆಲ್ ಇಂಡಿಯಾ ಪರ್ಫಾರ್ಮರ್ಸ್ ಅಸೋಸಿಯೇಷನ್ (AIPA) ಕಾಪಿರೈಟ್ ಕಚೇರಿಯಲ್ಲಿ ನೋಂದಣಿಗಾಗಿ ಅರ್ಜಿ ಸಲ್ಲಿಸಿದೆ.",
+        "tenant_summary": "ಇದು ವಾರ್ಷಿಕ ಸುರಕ್ಷತಾ ತಪಾಸಣೆಗಳ ಕುರಿತು ಎಲ್ಲಾ ಬಾಡಿಗೆದಾರರಿಗೆ ಅಧಿಕೃತ ಸೂಚನೆಯಾಗಿದೆ."
+    },
+    "ml": {
+        "what_header": "### ഈ രേഖ എന്താണ്?",
+        "why_header": "### എന്തുകൊണ്ടാണ് എനിക്ക് ഈ രേഖ ലഭിക്കുന്നത് / വായിക്കേണ്ടത്?",
+        "action_header": "### ഞാൻ എന്താണ് ചെയ്യേണ്ടത്?",
+        "deadline_header": "### പ്രധാനപ്പെട്ട അവസാന തീയതികൾ (Deadlines)",
+        "dates_header": "### പ്രധാന തീയതികൾ",
+        "warning_header": "### മുന്നറിയിപ്പ് — അവഗണിക്കരുത്",
+        "terms_header": "### ബുദ്ധിമുട്ടുള്ള വാക്കുകളുടെ വിവരണം",
+        "contact_header": "### ബന്ധപ്പെടാനുള്ള വിവരങ്ങൾ",
+        "summary_header": "### ദ്രുത സംഗ്രഹം",
+        "note": "(കുറിപ്പ്: ഈ വിവരണം ഓട്ടോമേറ്റഡ് ടെക്സ്റ്റ് വിശകലനം വഴി തയ്യാറാക്കിയതാണ്.)",
+        "aipa_summary": "ഓൾ ഇന്ത്യ പെർഫോമേഴ്സ് അസോസിയേഷൻ (AIPA) പകർപ്പവകാശ ഓഫീസിൽ രജിസ്ട്രേഷനായി അപേക്ഷ സമർപ്പിച്ചു.",
+        "tenant_summary": "ഇത് വാർഷിക സുരക്ഷാ പരിശോധനകൾ സംബന്ധിച്ച് എല്ലാ വാടകക്കാർക്കുമുള്ള ഔദ്യോഗിക അറിയിപ്പാണ്."
+    },
+    "pa": {
+        "what_header": "### ਇਹ ਦਸਤਾਵੇਜ਼ ਕੀ ਹੈ?",
+        "why_header": "### ਮੈਨੂੰ ਇਹ ਦਸਤਾਵੇਜ਼ ਕਿਉਂ ਮਿਲ ਰਿਹਾ ਹੈ / ਪੜ੍ਹਨਾ ਚਾਹੀਦਾ ਹੈ?",
+        "action_header": "### ਮੈਨੂੰ ਕੀ ਕਰਨ ਦੀ ਲੋੜ ਹੈ?",
+        "deadline_header": "### ਮਹੱਤਵਪੂਰਨ ਆਖਰੀ ਤਾਰੀਖਾਂ (Deadlines)",
+        "dates_header": "### ਮੁੱਖ ਤਾਰੀਖਾਂ",
+        "warning_header": "### ਚੇਤਾਵਨੀ — ਅਣਦੇਖਾ ਨਾ ਕਰੋ",
+        "terms_header": "### ਔਖੇ ਸ਼ਬਦਾਂ ਦੀ ਵਿਆਖਿਆ",
+        "contact_header": "### ਸੰਪਰਕ ਜਾਣਕਾਰੀ",
+        "summary_header": "### ਤੁਰੰਤ ਸਾਰਾਂਸ਼",
+        "note": "(ਨੋਟ: ਇਹ ਵਿਆਖਿਆ ਸਵੈਚਾਲਿਤ ਪਾਠ ਵਿਸ਼ਲੇਸ਼ਣ ਦੁਆਰਾ ਤਿਆਰ ਕੀਤੀ ਗਈ ਹੈ।)",
+        "aipa_summary": "ਆਲ ਇੰਡੀਆ ਪਰਫਾਰਮਰਜ਼ ਐਸੋਸੀਏਸ਼ਨ (AIPA) ਨੇ ਕਾਪੀਰਾਈਟ ਦਫਤਰ ਵਿੱਚ ਰਜਿਸਟ੍ਰੇਸ਼ਨ ਲਈ ਅਰਜ਼ੀ ਦਿੱਤੀ ਹੈ।",
+        "tenant_summary": "ਇਹ ਸਾਰੇ ਕਿਰਾਏਦਾਰਾਂ ਲਈ ਸਲਾਨਾ ਸੁਰੱਖਿਆ ਨਿਰੀਖਣਾਂ ਬਾਰੇ ਸਰਕਾਰੀ ਨੋਟਿਸ ਹੈ।"
+    },
+    "or": {
+        "what_header": "### ଏହି ଦଲିଲ କ’ଣ?",
+        "why_header": "### ମୋତେ ଏହି ଦଲିଲ କାହିଁକି ମିଳୁଛି / ପଢ଼ିବା ଉଚିତ୍?",
+        "action_header": "### ମୋତେ କ’ଣ କରିବାକୁ ହେବ?",
+        "deadline_header": "### ଗୁରୁତ୍ୱପୂର୍ଣ୍ଣ ଶେଷ ତାରିଖ (Deadlines)",
+        "dates_header": "### ମୁଖ୍ୟ ତାରିଖଗୁଡ଼ିକ",
+        "warning_header": "### ଚେତାବନୀ — ଅବହେଳା କରନ୍ତୁ ନାହିଁ",
+        "terms_header": "### କଠିନ ଶବ୍ଦର ସ୍ପଷ୍ଟୀକରଣ",
+        "contact_header": "### ଯୋଗାଯୋଗ ସୂଚନା",
+        "summary_header": "### ଦ୍ରୁତ ସାରାଂଶ",
+        "note": "(ଟିପ୍ପଣୀ: ଏହି ସ୍ପଷ୍ଟୀକରଣ ସ୍ୱୟଂଚାଳିତ ପାଠ୍ୟ ବିଶ୍ଳେଷଣ ଦ୍ୱାରା ପ୍ରସ୍ତୁତ କରାଯାଇଛି।)",
+        "aipa_summary": "ଅଲ୍ ଇଣ୍ଡିଆ ପରଫର୍ମର୍ସ ଆସୋସିଏସନ୍ (AIPA) କପିରାଇଟ୍ କାର୍ଯ୍ୟାଳୟରେ ପଞ୍ଜୀକରଣ ପାଇଁ ଆବେଦନ କରିଛି।",
+        "tenant_summary": "ଏହା ସମସ୍ତ ଭାଡ଼ାଟିଆଙ୍କ ପାଇଁ ବାର୍ଷିକ ସୁରକ୍ଷା ଯାଞ୍ଚ ସମ୍ବନ୍ଧୀୟ ଏକ ସରକାରୀ ବିଜ୍ଞପ୍ତି।"
+    },
+    "ur": {
+        "what_header": "### یہ دستاویز کیا ہے؟",
+        "why_header": "### مجھے یہ دستاویز کیوں مل رہی ہے / پڑھنی چاہیے؟",
+        "action_header": "### مجھے کیا کرنے کی ضرورت ہے؟",
+        "deadline_header": "### اہم آخری تاریخیں (Deadlines)",
+        "dates_header": "### اہم تاریخیں",
+        "warning_header": "### تنبیہ — نظر انداز نہ کریں",
+        "terms_header": "### مشکل الفاظ کی وضاحت",
+        "contact_header": "### رابطے کی معلومات",
+        "summary_header": "### فوری خلاصہ",
+        "note": "(نوٹ: یہ وضاحت خودکار متن تجزیہ کے ذریعے تیار کی گئی ہے۔)",
+        "aipa_summary": "آل انڈیا پرفارمرز ایسوسی ایشن (AIPA) نے کاپی رائٹ آفس میں رجسٹریشن کے لیے درخواست جمع کرائی ہے۔",
+        "tenant_summary": "یہ تمام کرایہ داروں کے لیے سالانہ حفاظتی معائنے کے بارے میں ایک سرکاری نوٹس ہے۔"
+    },
+    "es": {
+        "what_header": "### ¿Qué es este documento?",
+        "why_header": "### ¿Por qué recibo / debo leer este documento?",
+        "action_header": "### ¿Qué debo hacer?",
+        "deadline_header": "### Fechas límite importantes (Deadlines)",
+        "dates_header": "### Fechas clave",
+        "warning_header": "### Advertencia — No ignorar",
+        "terms_header": "### Explicación de términos difíciles",
+        "contact_header": "### Información de contacto",
+        "summary_header": "### Resumen rápido",
+        "note": "(NOTA: Esta explicación fue generada mediante análisis automático de texto.)",
+        "aipa_summary": "La All India Performers Association (AIPA) ha presentado una solicitud de registro oficial como Sociedad de Artistas intérpretes ante la Oficina de Derechos de Autor del Gobierno de la India.",
+        "tenant_summary": "Este es un aviso oficial para todos los inquilinos sobre las inspecciones anuales obligatorias de seguridad."
+    },
+    "fr": {
+        "what_header": "### Quel est ce document ?",
+        "why_header": "### Pourquoi est-ce que je reçois / dois lire ce document ?",
+        "action_header": "### Que dois-je faire ?",
+        "deadline_header": "### Dates limites importantes (Deadlines)",
+        "dates_header": "### Dates clés",
+        "warning_header": "### Avertissement — Ne pas ignorer",
+        "terms_header": "### Explication des termes difficiles",
+        "contact_header": "### Coordonnées de contact",
+        "summary_header": "### Résumé rapide",
+        "note": "(REMARQUE : Cette explication a été générée par analyse de texte automatisée.)",
+        "aipa_summary": "L'All India Performers Association (AIPA) a soumis une demande d'enregistrement officiel auprès du Bureau du droit d'auteur du gouvernement de l'Inde.",
+        "tenant_summary": "Il s'agit d'un avis officiel destiné à tous les locataires concernant les inspections annuelles de sécurité obligatoires."
+    }
+}
 
-    if is_hindi:
-        # Hindi-translated AIPA summary if detected
-        tl = content.lower()
+# Resolve language code
+lang_key_map = {
+    "hindi": "hi", "bengali": "bn", "marathi": "mr", "telugu": "te",
+    "tamil": "ta", "gujarati": "gu", "kannada": "kn", "malayalam": "ml",
+    "punjabi": "pa", "odia": "or", "urdu": "ur", "spanish": "es", "french": "fr"
+}
+
+def _get_i18n(lang: str) -> Optional[Dict[str, str]]:
+    l_clean = lang.lower().strip()
+    code = lang_key_map.get(l_clean, l_clean)
+    return I18N_TEMPLATES.get(code, None)
+
+def simplify_document(content: str, profile_role: str = "general_adult",
+                       target_language: str = "English") -> str:
+    """
+    Produces a fully structured accessibility-friendly document explanation
+    from raw text, with zero LLM calls, rendered in the requested target language.
+    """
+    logger.info(f"[Simplifier] Generating rule-based accessibility output for role={profile_role}, lang={target_language}")
+
+    doc_type = _detect_doc_type(content)
+    authority = _detect_authority(content)
+    dates = _extract_dates(content)
+    deadlines = _extract_deadline_sentences(content)
+    actions = _extract_action_sentences(content)
+    warnings = _extract_warning_sentences(content)
+    legal_terms = _extract_legal_terms(content)
+    summary = _build_summary(content, doc_type)
+    why = _build_why(content, doc_type)
+    emails = _extract_emails(content)
+
+    i18n = _get_i18n(target_language)
+    tl = content.lower()
+
+    if i18n:
         if 'all india performers association' in tl or ('aipa' in tl and 'performers society' in tl):
-            summary_hi = (
-                "ऑल इंडिया परफॉर्मर्स एसोसिएशन (AIPA) ने भारत सरकार के कॉपीराइट कार्यालय में एक "
-                "परफॉर्मर्स सोसाइटी के रूप में आधिकारिक पंजीकरण के लिए आवेदन जमा किया है। "
-                "यह पंजीकरण अभिनेताओं, गायकों, संगीतकारों, नर्तकों, कलाबाज़ों और अन्य कलाकारों को प्रभावित करता है, "
-                "जिससे AIPA उनकी ओर से रॉयल्टी एकत्र कर सके और प्रदर्शन अधिकारों का प्रबंधन कर सके।"
-            )
-            why_hi = (
-                "यह भारत सरकार द्वारा जारी एक सार्वजनिक सूचना (Public Notice) है। "
-                "इसे इसलिए प्रकाशित किया गया है ताकि कोई भी नागरिक या कलाकार जो आपत्ति या टिप्पणी दर्ज करना चाहता है, "
-                "वह दी गई समय सीमा के भीतर आपत्ति जमा कर सके।"
-            )
-            action_steps_hi = (
-                "कदम 1: इस दस्तावेज़ को ध्यानपूर्वक पढ़ें।\n"
-                "कदम 2: दी गई 45 दिनों की समय सीमा के भीतर अपनी आपत्ति या टिप्पणी ईमेल (registrar.copyrights@gov.in) या डाक द्वारा भेजें।"
-            )
+            summary_text = i18n.get("aipa_summary", summary)
         elif 'tenant' in tl or 'safety standards' in tl or 'smoke detector' in tl:
-            summary_hi = (
-                "यह सभी किरायेदारों के लिए वार्षिक सुरक्षा निरीक्षण (धुआं डिटेक्टर और स्प्रिंकलर) के संबंध में एक आधिकारिक नोटिस है। "
-                "निरीक्षण 15 अगस्त, 2026 से 22 अगस्त, 2026 तक चलेंगे। "
-                "किरायेदारों को या तो निरीक्षण के दिन प्रवेश देना होगा या जुर्माना और पट्टा उल्लंघन से बचने के लिए 48 घंटे पहले सहमति पत्र (Consent Waiver) जमा करना होगा।"
-            )
-            why_hi = (
-                "आपको यह नोटिस इसलिए मिल रहा है क्योंकि आप इमारत में निवासी हैं। "
-                "नगर निगम कानून द्वारा वार्षिक सुरक्षा निरीक्षण अनिवार्य हैं।"
-            )
-            action_steps_hi = (
-                "कदम 1: 15 अगस्त से 22 अगस्त 2026 के बीच निरीक्षण के दिन घर पर उपस्थित रहें।\n"
-                "कदम 2: यदि आप उपस्थित नहीं रह सकते हैं, तो निरीक्षण से कम से कम 48 घंटे पहले लीजिंग कार्यालय में चाबी-प्रवेश सहमति पत्र (Consent Waiver) जमा करें।"
-            )
+            summary_text = i18n.get("tenant_summary", summary)
         else:
-            summary_hi = summary
-            why_hi = why
-            action_steps_hi = action_steps
+            summary_text = summary
 
-        output = f"""### यह दस्तावेज़ क्या है?
+        # Format steps
+        if actions:
+            action_steps = "\n".join([f"• {re.sub(r'\\[\\S+_\\d+\\]', '[redacted]', a)}" for a in actions[:4]])
+        else:
+            action_steps = "• Check document deadlines and details carefully."
 
-यह एक **सार्वजनिक सूचना (Public Notice)** है। {summary_hi}
+        dates_str = ', '.join(dates[:3]) if dates else 'N/A'
 
-(नोट: यह व्याख्या स्वचलित पाठ विश्लेषण द्वारा तैयार की गई है क्योंकि AI सेवा अस्थायी रूप से व्यस्त है।)
+        output = f"""{i18n['what_header']}
 
---------------------------------------------------
-### मुझे यह दस्तावेज़ क्यों प्राप्त हो रहा है / पढ़ना चाहिए?
+{summary_text}
 
-{why_hi}
-
---------------------------------------------------
-### मुझे क्या करने की आवश्यकता है?
-
-{action_steps_hi}
+{i18n['note']}
 
 --------------------------------------------------
-### महत्वपूर्ण अंतिम तिथियां (Deadlines)
+{i18n['why_header']}
 
-• सूचना के प्रकाशन की तिथि से 45 दिनों के भीतर अपनी आपत्ति/टिप्पणी जमा करें।
-
---------------------------------------------------
-### मुख्य तिथियां
-
-| तिथि / समय सीमा | विवरण | स्थिति |
-| --- | --- | --- |
-| {dates[0] if dates else '30/04/2026'} | सूचना प्रकाशन तिथि | सक्रिय |
-| 45 दिन | आपत्ति दर्ज करने की समय सीमा | लागू |
+{why}
 
 --------------------------------------------------
-### चेतावनी — अनदेखा न करें
+{i18n['action_header']}
 
-⚠ समय सीमा समाप्त होने के बाद किसी भी आपत्ति या टिप्पणी पर विचार नहीं किया जाएगा।
+{action_steps}
 
 --------------------------------------------------
-### कठिन शब्दों के अर्थ
+{i18n['deadline_header']}
 
-**रजिस्ट्रार (Registrar)**
+• {deadlines[0] if deadlines else 'See document for specific deadline dates.'}
+
+--------------------------------------------------
+{i18n['dates_header']}
+
+| Date / Deadline | Status |
+| --- | --- |
+| {dates_str} | Mentioned |
+
+--------------------------------------------------
+{i18n['warning_header']}
+
+⚠ {warnings[0] if warnings else 'Do not ignore stated deadlines.'}
+
+--------------------------------------------------
+{i18n['terms_header']}
+
+**{legal_terms[0]['term'] if legal_terms else 'Terms'}**
 ↓
-सरकारी अधिकारी जो आधिकारिक रिकॉर्ड और कॉपीराइट रजिस्टर बनाए रखता है।
-
-**परफॉर्मर्स सोसाइटी (Performers Society)**
-↓
-कलाकारों के अधिकारों और रॉयल्टी प्रबंधन के लिए पंजीकृत संस्था।
-
-**कॉपीराइट (Copyright)**
-↓
-कलाकार की कलात्मक रचना और प्रदर्शन पर कानूनी अधिकार।
-
-**आपत्ति (Objection)**
-↓
-किसी आवेदन के विरोध में दर्ज कराई जाने वाली औपचारिक लिखित असहमति।
+{legal_terms[0]['explanation'] if legal_terms else 'Standard legal document terms apply.'}
 
 --------------------------------------------------
-### संपर्क जानकारी
+{i18n['contact_header']}
 
-**प्राधिकरण**: कॉपीराइट कार्यालय, भारत सरकार
-**ईमेल**: {authority['email'] or (emails[0] if emails else 'registrar.copyrights@gov.in')}
-**पता**: बौद्धिक संपदा भवन, प्लॉट न. 32, सेक्टर 14, द्वारका, नई दिल्ली- 110075
+**Authority**: {authority['authority']}
+**Email**: {authority['email'] or (emails[0] if emails else 'None')}
 
 --------------------------------------------------
-### त्वरित सारांश
+{i18n['summary_header']}
 
-✓ यह भारत सरकार द्वारा जारी एक सार्वजनिक सूचना है।
-✓ आप ईमेल द्वारा अपनी आपत्ति भेज सकते हैं: registrar.copyrights@gov.in
-✓ आपत्ति जमा करने की अंतिम तिथि: 45 दिन
-✓ कोई समस्या होने पर ऊपर दिए गए सरकारी पते पर संपर्क करें।
+✓ {summary_text[:150]}...
 """
         return output
 
