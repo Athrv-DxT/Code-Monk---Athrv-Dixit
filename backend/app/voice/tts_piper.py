@@ -1,4 +1,5 @@
 import os
+import re
 import asyncio
 import logging
 from typing import Optional
@@ -103,7 +104,8 @@ async def _edge_tts_generate(text: str, output_path: str, role: str, language: O
     communicate = edge_tts.Communicate(text, selected_voice)
     await communicate.save(output_path)
 
-def generate_tts(text: str, run_id: str, role: str, language: Optional[str] = "en") -> Optional[str]:
+
+async def generate_tts(text: str, run_id: str, role: str, language: Optional[str] = "en") -> Optional[str]:
     """
     Generates TTS audio file for the adapted text.
     First tries edge-tts (as the high-quality, zero-dependency default).
@@ -116,7 +118,7 @@ def generate_tts(text: str, run_id: str, role: str, language: Optional[str] = "e
     # Clean text to remove raw markdown headers/tags that sound weird in TTS
     clean_text = text.replace("--- ADAPTED CONTENT ---", "")
     clean_text = re.sub(r'#+\s*', '', clean_text)  # Remove markdown headers
-    clean_text = re.sub(r'\*+\s*', '', clean_text) # Remove markdown bolding
+    clean_text = re.sub(r'\*+\s*', '', clean_text)  # Remove markdown bolding
     clean_text = clean_text.strip()
     
     # Restrict to first 1500 chars to save bandwidth and keep response snappy
@@ -124,14 +126,7 @@ def generate_tts(text: str, run_id: str, role: str, language: Optional[str] = "e
     
     try:
         logger.info(f"Generating TTS for run {run_id}, role: {role}, language: {language}")
-        
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        try:
-            loop.run_until_complete(_edge_tts_generate(clean_text, output_path, role, language))
-        finally:
-            loop.close()
-            
+        await _edge_tts_generate(clean_text, output_path, role, language)
         if os.path.exists(output_path) and os.path.getsize(output_path) > 0:
             logger.info(f"Audio generated successfully: {output_path}")
             return output_path
@@ -140,4 +135,3 @@ def generate_tts(text: str, run_id: str, role: str, language: Optional[str] = "e
         logger.error(f"TTS generation failed: {e}")
         
     return None
-import re

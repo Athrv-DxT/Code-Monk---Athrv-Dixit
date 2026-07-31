@@ -14,13 +14,13 @@ def call_gemini(
     api_key: Optional[str] = None
 ) -> str:
     """
-    Calls the Google Gemini API (gemini-1.5-flash) using httpx.
+    Calls the Google Gemini API (gemini-2.0-flash) using httpx.
     """
     target_key = api_key or settings.GEMINI_API_KEY
     if not target_key:
         raise ValueError("Gemini API key is not configured.")
     
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={target_key}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={target_key}"
     
     headers = {"Content-Type": "application/json"}
     
@@ -78,7 +78,7 @@ def call_gemini_stream(
     if not target_key:
         raise ValueError("Gemini API key is not configured.")
         
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:streamGenerateContent?key={target_key}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?key={target_key}"
     headers = {"Content-Type": "application/json"}
     
     contents = {

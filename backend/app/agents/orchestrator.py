@@ -240,7 +240,7 @@ async def run_pipeline(
             audio_url = ""
             if options.get("tts_output", False):
                 checkpoint_logger.log_event("TTS_GENERATION_STARTED", f"Generating audio for profile {profile.role}...")
-                audio_path = generate_tts(unmasked_adapted_text, run_id, profile.role, profile.preferred_language)
+                audio_path = await generate_tts(unmasked_adapted_text, run_id, profile.role, profile.preferred_language)
                 if audio_path:
                     audio_url = f"/api/v1/audio/{run_id}/{profile.role}.mp3"
                     checkpoint_logger.log_event("TTS_GENERATION_COMPLETED", f"Audio generated at {audio_path}")
@@ -305,6 +305,8 @@ async def run_pipeline_stream(
 ) -> AsyncGenerator[Dict[str, Any], None]:
     """
     Asynchronous streaming pipeline. Yields completed sections one by one.
+    Mirrors run_pipeline: supports voice narration profile extraction, PII masking,
+    and language detection from voice commands.
     """
     run_id = f"run_{uuid.uuid4().hex[:8]}"
     checkpoint_logger = CheckpointLogger(run_id)
@@ -322,8 +324,29 @@ async def run_pipeline_stream(
         
         detections = detector.detect(content)
         content = masker.mask(content, detections, vault)
+        checkpoint_logger.log_event("PII_REDACTION_COMPLETED", "Main document masked (stream).")
+        
+        if voice_narration:
+            narration_dets = detector.detect(voice_narration)
+            voice_narration = masker.mask(voice_narration, narration_dets, vault)
+            checkpoint_logger.log_event("PII_REDACTION_COMPLETED", "Voice narration masked (stream).")
         
     try:
+        # Step 0: Voice-driven profile extraction override
+        voice_profile = None
+        if voice_narration:
+            checkpoint_logger.log_event(
+                "VOICE_PROFILE_EXTRACTION_STARTED",
+                f"Extracting audience profile from narration (stream): '{voice_narration}'"
+            )
+            voice_profile = await asyncio.to_thread(extract_profile_from_narration, voice_narration)
+            voice_profile.modality = "audio_optimized"
+            options["tts_output"] = True
+            checkpoint_logger.log_event(
+                "VOICE_PROFILE_EXTRACTION_COMPLETED",
+                f"Stream extracted role: {voice_profile.role}, needs: {voice_profile.cognitive_access_needs}"
+            )
+
         # Step 1 & 2. Concurrently execute Classifier & Meaning Extraction
         async def run_parallel_agents():
             task_understanding = asyncio.to_thread(analyze_content, content, run_id, checkpoint_logger)
@@ -341,8 +364,10 @@ async def run_pipeline_stream(
                 pass
         threading.Thread(target=bg_save, daemon=True).start()
         
-        # Profile & Strategy Setup
-        if isinstance(audience_profile_dict, AudienceProfile):
+        # Profile & Strategy Setup — voice profile takes priority
+        if voice_profile:
+            profile = voice_profile
+        elif isinstance(audience_profile_dict, AudienceProfile):
             profile = audience_profile_dict
         else:
             profile = AudienceProfile(**audience_profile_dict)
@@ -364,8 +389,17 @@ async def run_pipeline_stream(
             "risk_level": understanding.get("risk_level", "medium")
         }
         
-        # Stream Rewriter (English)
-        section_generator = run_rewriter_stream(profile, strategy, planner_plan)
+        # Stream Rewriter (English first, then translate per section)
+        # Copy profile to English for generation
+        english_profile = AudienceProfile(
+            role=profile.role,
+            domain_familiarity=profile.domain_familiarity,
+            cognitive_access_needs=profile.cognitive_access_needs,
+            preferred_language="en",
+            modality=profile.modality,
+            age_band=profile.age_band
+        )
+        section_generator = run_rewriter_stream(english_profile, strategy, planner_plan)
         
         from app.privacy.reinserter import PIIReinserter
         reinserter = PIIReinserter() if (settings.ENABLE_PII_MASKING and vault) else None
@@ -376,15 +410,29 @@ async def run_pipeline_stream(
             
         sections = await asyncio.to_thread(get_sections)
         
+        # Translate all sections in parallel if regional language
+        target_lang = profile.preferred_language
+        
+        if target_lang and target_lang.lower() != "en":
+            # Parallel translation of all sections
+            async def translate_all():
+                tasks = []
+                for section in sections:
+                    tasks.append(asyncio.to_thread(translate_text, section["section"], target_lang))
+                    tasks.append(asyncio.to_thread(translate_text, section["content"], target_lang))
+                results = await asyncio.gather(*tasks)
+                translated = []
+                for i, section in enumerate(sections):
+                    translated.append({
+                        "section": results[i * 2],
+                        "content": results[i * 2 + 1]
+                    })
+                return translated
+            sections = await translate_all()
+
         for section in sections:
             sect_title = section["section"]
             sect_content = section["content"]
-            
-            # Translate if regional
-            target_lang = profile.preferred_language
-            if target_lang and target_lang.lower() != "en":
-                sect_title = translate_text(sect_title, target_lang)
-                sect_content = translate_text(sect_content, target_lang)
                 
             # Reinsert PII
             if reinserter and vault:
@@ -404,6 +452,7 @@ async def run_pipeline_stream(
     finally:
         if vault:
             vault.clear()
+
 
 def _resolve_preset_profile(profile_name: str) -> AudienceProfile:
     """

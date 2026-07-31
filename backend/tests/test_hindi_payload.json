@@ -1,0 +1,16 @@
+{
+  "content": "CITY GENERAL HOSPITAL\nDischarge Instructions – Outpatient Procedure\n\nPatient Name: John Doe\nDate of Procedure: 28 July 2026\nProcedure: Minor soft-tissue excision (left forearm)\n\nYou may leave the hospital today. Keep the dressing clean and dry for 48 hours. Do not soak the area in water. After 48 hours you may shower, but pat the area dry — do not rub.\n\nTake paracetamol 500 mg every 6–8 hours if needed for pain. Do not exceed 4 grams in 24 hours. If pain is not controlled, contact the clinic.\n\nWatch for: increasing redness, swelling, pus, fever above 38°C, or red streaks from the wound. If any of these occur, seek medical attention the same day.\n\nFollow-up appointment is required in 7–10 days. The clinic will contact you to confirm the exact date and time. Bring this form and your insurance card.\n\nIf you have questions, call the Surgical Day Unit on 011-XXXX-XXXX between 9:00 and 17:00, Monday to Friday.\n\nNote: Specific antibiotic instructions were discussed verbally with the patient. Written details are not included on this form.",
+  "audience_profile": {
+    "role": "patient",
+    "domain_familiarity": "novice",
+    "cognitive_access_needs": "low_cognitive_load",
+    "preferred_language": "hi",
+    "modality": "text"
+  },
+  "options": {
+    "generate_multiple_profiles": false,
+    "include_fidelity_note": true,
+    "enable_external_lookup": false,
+    "tts_output": false
+  }
+}

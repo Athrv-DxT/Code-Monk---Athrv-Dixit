@@ -26,6 +26,11 @@ def call_groq(
     }
     
     messages = []
+    # Truncate prompt to avoid Groq 413 Payload Too Large (context limit ~6000 tokens)
+    max_prompt_chars = 24000
+    if len(prompt) > max_prompt_chars:
+        logger.warning(f"[Groq] Prompt truncated from {len(prompt)} to {max_prompt_chars} chars for payload limit.")
+        prompt = prompt[:max_prompt_chars] + "\n\n[Content truncated for processing]"
     if system_instruction:
         messages.append({"role": "system", "content": system_instruction})
     messages.append({"role": "user", "content": prompt})
@@ -76,6 +81,11 @@ def call_groq_stream(
     }
     
     messages = []
+    # Truncate prompt to avoid Groq 413 Payload Too Large (context limit ~6000 tokens)
+    max_prompt_chars = 24000
+    if len(prompt) > max_prompt_chars:
+        logger.warning(f"[Groq Stream] Prompt truncated from {len(prompt)} to {max_prompt_chars} chars for payload limit.")
+        prompt = prompt[:max_prompt_chars] + "\n\n[Content truncated for processing]"
     if system_instruction:
         messages.append({"role": "system", "content": system_instruction})
     messages.append({"role": "user", "content": prompt})

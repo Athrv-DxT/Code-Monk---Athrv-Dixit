@@ -1,0 +1,44 @@
+{
+  "run_id": "run_063259b9",
+  "domain": "medical",
+  "document_type": "instruction_set",
+  "risk_level": "medium",
+  "versions": [
+    {
+      "profile": "patient",
+      "adapted_content": "आपको आज अस्पताल से जाने की अनुमति है। 48 घंटों के लिए पट्टी को साफ और सूखा रखें। पानी में न डुबोएं। 48 घंटों के बाद, आप नहा सकते हैं, लेकिन उस क्षेत्र को रगड़ें नहीं, बल्कि उसे सुखाएं।\n\nदर्द के लिए आवश्यकतानुसार हर 6-8 घंटे में 500 मिलीग्राम पेरासिटामोल लें। 24 घंटे में 4 ग्राम से अधिक न लें। यदि दर्द नियंत्रित नहीं होता है, तो क्लिनिक से संपर्क करें।\n\nनिम्नलिखित पर नजर रखें: बढ़ती लालिमा, सूजन, मवाद, 38°C से अधिक बुखार, या घाव से लाल धारियां। यदि इनमें से कोई भी होता है, तो उसी दिन चिकित्सा ध्यान दें।\n\n7-10 दिनों में फॉलो-अप नियुक्ति आवश्यक है। क्लिनिक आपको सटीक तिथि और समय की पुष्टि करने के लिए संपर्क करेगा। इस फॉर्म और अपने बीमा कार्ड को लेकर आएं।\n\nयदि आपके पास प्रश्न हैं, तो सोमवार से शुक्रवार, 9:00 से 17:00 के बीच, सर्जिकल डे यूनिट पर 011-XXXX-XXXX पर कॉल करें।",
+      "strategy_summary": "Vocab=simple, Structure=step-by-step, Tone=reassuring",
+      "gaps": [
+        "Contact details for after-hours emergencies",
+        "Exact follow-up appointment date and time",
+        "Specific antibiotic instructions",
+        "विशिष्ट एंटीबायोटिक निर्देश मरीज़ के साथ मौखिक रूप से चर्चा किए गए थे, जो इस फॉर्म पर शामिल नहीं हैं।"
+      ],
+      "fidelity_note": "Fidelity check: 95% coverage. Hallucinations: 0. Warning: Some obligations/meanings might be dropped or modified.",
+      "audio_url": "/api/v1/audio/run_063259b9/patient.mp3",
+      "explanations": ""
+    }
+  ],
+  "content_understanding": {
+    "domain": "medical",
+    "document_type": "instruction_set",
+    "risk_level": "medium",
+    "sensitivity_signals": [
+      "Patient Name",
+      "medical procedure details",
+      "medication instructions"
+    ],
+    "is_incomplete": true,
+    "is_ambiguous": true,
+    "gaps_detected": [
+      "Specific antibiotic instructions",
+      "Exact follow-up appointment date and time",
+      "Contact details for after-hours emergencies"
+    ]
+  },
+  "meaning_summary": {
+    "node_count": 19,
+    "relationship_count": 10
+  },
+  "graph_run_node_id": "run_063259b9"
+}

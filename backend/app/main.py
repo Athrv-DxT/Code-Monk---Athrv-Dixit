@@ -32,6 +32,9 @@ def on_startup():
     logger.info("Project Meridian API booting up...")
     # Initialize Neo4j constraints
     init_db()
+    # Initialize LLM failover manager and print startup banner
+    from app.llm.failover_manager import failover_manager
+    logger.info(f"LLM Failover Manager ready: {len(failover_manager.gemini_providers)} Gemini + {len(failover_manager.groq_providers)} Groq provider(s) loaded.")
 
 @app.get("/")
 def read_root():

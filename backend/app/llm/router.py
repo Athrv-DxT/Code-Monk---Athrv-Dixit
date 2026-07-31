@@ -158,7 +158,114 @@ def get_offline_mock_response(prompt: str, system_instruction: Optional[str], js
             "is_fidelity_check_passed": True
         })
         
-    # 4. Rewriter (Default/Fallback text output)
+    # 4. Translator Mock
+    elif "translator" in sys_lower or "translate" in sys_lower:
+        prompt_lower = prompt.lower()
+        if "hindi" in prompt_lower:
+            return """### दस्तावेज़ सारांश
+
+भवन सुरक्षा निरीक्षण 15 अगस्त, 2026 से शुरू होने वाले हैं। सभी निवासियों को अधिकृत सुरक्षा कर्मियों को प्रवेश देना होगा। वैकल्पिक रूप से, निवासी लीजिंग कार्यालय में एक कुंजी-प्रवेश सहमति छूट जमा कर सकते हैं।
+
+--------------------------------------------------
+### मुझे यह दस्तावेज़ क्यों मिल रहा है?
+
+आपको यह नोटिस इसलिए मिल रहा है क्योंकि आपके भवन में अनिवार्य वार्षिक सुरक्षा निरीक्षण शुरू हो रहे हैं, और आपके अपार्टमेंट की जाँच की जानी आवश्यक है।
+
+--------------------------------------------------
+### मुझे क्या करने की ज़रूरत है?
+
+कदम 1: निरीक्षण के दिन उपस्थित रहें या प्रवेश प्रदान करें।
+कदम 2: यदि आप उपस्थित नहीं हो सकते हैं, तो कुंजी-प्रवेश सहमति छूट निष्पादित करें और जमा करें।
+
+--------------------------------------------------
+### महत्वपूर्ण तिथियां
+
+| समय सीमा | प्रभावी तिथि | जारी होने की तिथि | नवीनीकरण तिथि |
+| --- | --- | --- | --- |
+| निरीक्षण से 48 घंटे पहले | 15 अगस्त, 2026 | कोई नहीं | कोई नहीं |
+
+--------------------------------------------------
+### महत्वपूर्ण जानकारी
+
+वार्षिक निरीक्षण अनिवार्य हैं। आपको अधिकृत निरीक्षकों को प्रवेश देना होगा।
+
+--------------------------------------------------
+### चेतावनी
+
+⚠ निरीक्षण से 48 घंटे पहले प्रवेश प्रदान करने या छूट जमा करने में विफल रहने पर प्रवेश उल्लंघन दंड भुगतना होगा।
+
+--------------------------------------------------
+### कठिन शब्दों की व्याख्या
+
+**सहमति छूट (Consent Waiver)**
+↓
+एक दस्तावेज़ जो सुरक्षा कर्मियों को प्रबंधन कुंजी का उपयोग करके आपके अपार्टमेंट में प्रवेश करने और निरीक्षण करने की अनुमति देता है।
+
+--------------------------------------------------
+### संपर्क जानकारी
+
+**प्राधिकरण**: लीजिंग कार्यालय
+**कार्यालय**: मुख्य डेस्क
+**फोन**: 555-0199
+**पता**: लॉबी क्षेत्र
+
+--------------------------------------------------
+### त्वरित सारांश
+
+✓ सुरक्षा निरीक्षण 15 अगस्त, 2026 से शुरू।
+✓ यदि कुंजी-प्रवेश की आवश्यकता है, तो कम से कम 48 घंटे पहले छूट जमा करें।
+✓ अनिवार्य प्रवेश आवश्यक।"""
+        elif "spanish" in prompt_lower:
+            return """### Resumen del Documento
+
+Las inspecciones obligatorias de seguridad del edificio están programadas para comenzar el 15 de agosto de 2026. Todos los residentes deben permitir el acceso al personal del edificio.
+
+--------------------------------------------------
+### ¿Por qué recibo este documento?
+
+Recibe este aviso porque están comenzando las inspecciones anuales obligatorias en su edificio.
+
+--------------------------------------------------
+### ¿Qué tengo que hacer?
+
+Paso 1: Estar presente el día de la inspección.
+Paso 2: Si no puede estar presente, firme el consentimiento de entrada.
+
+--------------------------------------------------
+### Fechas Importantes
+
+| Fecha Límite | Fecha de Inicio |
+| --- | --- |
+| 48 horas antes | 15 de agosto de 2026 |"""
+        elif "french" in prompt_lower:
+            return """### Résumé du Document
+
+Les inspections obligatoires de sécurité du bâtiment doivent commencer le 15 août 2026. Tous les résidents doivent accorder l'accès aux inspecteurs.
+
+--------------------------------------------------
+### Pourquoi est-ce que je reçois ce document?
+
+Vous recevez cet avis car les inspections de sécurité commencent dans votre immeuble.
+
+--------------------------------------------------
+### Qu'est-ce que je dois faire?
+
+Étape 1: Être présent le jour de l'inspection.
+Étape 2: Si vous ne pouvez pas être présent, signez la dérogation.
+
+--------------------------------------------------
+### Dates Importantes
+
+| Date Limite | Date d'inspection |
+| --- | --- |
+| 48 heures avant | 15 août 2026 |"""
+        else:
+            lang_token = target_lang if 'target_lang' in locals() else "Target Language"
+            return f"[{lang_token} Translation Mock]\n\n" + """### Document Summary
+
+The building safety inspections are scheduled to start on August 15, 2026. All residents must grant access to authorized safety personnel. Alternatively, residents can submit a key-entry consent waiver to the leasing office."""
+
+    # 5. Rewriter (Default/Fallback text output)
     else:
         return """### Document Summary
 

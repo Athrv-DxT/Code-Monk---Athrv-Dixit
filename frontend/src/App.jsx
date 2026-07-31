@@ -323,9 +323,8 @@ export default function App() {
             setVoiceControlFeedback(data.text);
             const lang = data.language || 'en';
             
-            if (lang !== uiLanguage) {
-              setDetectedLangCode(lang);
-              setShowLangModal(true);
+            if (lang !== 'en' && lang !== uiLanguage) {
+              setUiLanguage(lang);
               const langNames = {
                 hi: 'हिंदी (Hindi)',
                 bn: 'বাংলা (Bengali)',
@@ -339,11 +338,13 @@ export default function App() {
                 ml: 'മലയാളം (Malayalam)',
                 pa: 'ਪੰਜਾਬੀ (Punjabi)',
                 es: 'Español (Spanish)',
-                fr: 'Français (French)',
-                en: 'English'
+                fr: 'Français (French)'
               };
               const targetLangName = langNames[lang] || lang;
-              speakText(`We detected you are speaking ${targetLangName}. Would you like to translate the screen to ${targetLangName}?`);
+              speakText(`Detected ${targetLangName}. Translating interface and content.`);
+              if (content.trim()) {
+                handleAdapt(content, lang);
+              }
             } else {
               handleVoiceCommand(data.text);
             }
@@ -790,8 +791,12 @@ export default function App() {
           const data = await res.json();
           if (data.text) {
             setContent(data.text);
+            const lang = data.language || 'en';
+            if (lang !== 'en' && lang !== uiLanguage) {
+              setUiLanguage(lang);
+            }
             speakText("Speech transcribed. Commencing adaptation.");
-            await handleAdapt(data.text);
+            await handleAdapt(data.text, lang);
           }
         } catch (e) {
           console.error(e);
