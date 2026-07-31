@@ -1,4 +1,4 @@
-﻿import time
+import time
 import random
 import logging
 import threading
@@ -265,9 +265,9 @@ class LLMFailoverManager:
             logger.info(f"Skipping provider {provider.name}: circuit is OPEN (cooling down).")
             return None
 
-        max_attempts = 4
-        base_delay = 1.0
-        max_delay = 8.0
+        max_attempts = 2
+        base_delay = 0.5
+        max_delay = 2.0
 
         for attempt in range(1, max_attempts + 1):
             start_time = time.time()
