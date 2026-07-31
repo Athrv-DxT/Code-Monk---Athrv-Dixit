@@ -300,6 +300,56 @@ export default function App() {
   const [voiceControlRecorder, setVoiceControlRecorder] = useState(null);
 
   const startRecordingVoiceControl = async () => {
+    // Check for Browser WebSpeech API first (Instant zero-latency speech recognition)
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      try {
+        const recognition = new SpeechRecognition();
+        recognition.lang = uiLanguage === 'hi' ? 'hi-IN' : 'en-US';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.onstart = () => {
+          setIsRecordingVoiceControl(true);
+          speakText(uiLanguage === 'hi' ? "सुन रहे हैं, बोलिए..." : "Listening, speak now...");
+        };
+
+        recognition.onresult = (event) => {
+          const speechResult = event.results[0][0].transcript;
+          console.log("WebSpeech Result:", speechResult);
+          setVoiceControlFeedback(speechResult);
+          speakText(uiLanguage === 'hi' ? `प्राप्त हुआ: ${speechResult}` : `Understood: ${speechResult}`);
+
+          // Detect Hindi speech
+          const hasHindiScript = /[\u0900-\u097F]/.test(speechResult);
+          if (hasHindiScript || speechResult.toLowerCase().includes("hindi")) {
+            if (uiLanguage !== 'hi') {
+              setUiLanguage('hi');
+              speakText("हिंदी भाषा चुनी गई।");
+            }
+          }
+
+          if (content.trim()) {
+            handleAdapt(content, hasHindiScript ? 'hi' : uiLanguage);
+          }
+        };
+
+        recognition.onerror = (event) => {
+          console.warn("WebSpeech error:", event.error);
+          setIsRecordingVoiceControl(false);
+        };
+
+        recognition.onend = () => {
+          setIsRecordingVoiceControl(false);
+        };
+
+        recognition.start();
+        return;
+      } catch (e) {
+        console.warn("WebSpeech initialization failed, falling back to MediaRecorder", e);
+      }
+    }
+
     if (!navigator.mediaDevices) return;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });

@@ -263,6 +263,7 @@ class LLMFailoverManager:
         """
         if not provider.check_circuit():
             logger.info(f"Skipping provider {provider.name}: circuit is OPEN (cooling down).")
+            errors.append(f"{provider.name}: Circuit OPEN (cooling down)")
             return None
 
         max_attempts = 2
