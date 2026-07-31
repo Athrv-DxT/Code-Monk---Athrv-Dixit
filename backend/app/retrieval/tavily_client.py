@@ -1,10 +1,10 @@
-import httpx
+﻿import httpx
 import logging
 from typing import List, Dict, Any
 from app.config import settings
 from app.utils.redaction import redact_pii
 
-logger = logging.getLogger("meridian.tavily")
+logger = logging.getLogger("intellix.tavily")
 
 def search_tavily(query: str, max_results: int = 3) -> List[Dict[str, Any]]:
     """

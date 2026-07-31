@@ -1,11 +1,11 @@
-import os
+﻿import os
 import re
 import asyncio
 import logging
 from typing import Optional
 from app.config import settings
 
-logger = logging.getLogger("meridian.tts")
+logger = logging.getLogger("intellix.tts")
 
 async def _edge_tts_generate(text: str, output_path: str, role: str, language: Optional[str] = "en"):
     """

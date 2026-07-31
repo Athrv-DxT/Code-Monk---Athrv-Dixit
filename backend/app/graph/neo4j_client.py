@@ -1,10 +1,10 @@
-import logging
+﻿import logging
 from typing import Optional, List, Dict, Any
 from neo4j import GraphDatabase, Driver
 from app.config import settings
 from app.core.models import StructuredMeaningRepresentation, MeaningNode, MeaningRelationship
 
-logger = logging.getLogger("meridian.neo4j")
+logger = logging.getLogger("intellix.neo4j")
 
 _driver: Optional[Driver] = None
 _connection_attempted: bool = False

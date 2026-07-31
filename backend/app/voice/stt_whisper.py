@@ -1,8 +1,8 @@
-import os
+﻿import os
 import logging
 from typing import Optional
 
-logger = logging.getLogger("meridian.stt")
+logger = logging.getLogger("intellix.stt")
 _model = None
 
 from app.config import settings

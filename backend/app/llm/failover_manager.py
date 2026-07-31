@@ -1,4 +1,4 @@
-import time
+﻿import time
 import random
 import logging
 import threading
@@ -8,7 +8,7 @@ from app.config import settings
 from app.llm.gemini_client import call_gemini
 from app.llm.groq_client import call_groq
 
-logger = logging.getLogger("meridian.failover")
+logger = logging.getLogger("intellix.failover")
 
 def is_transient_error(e: Exception) -> bool:
     """
@@ -216,7 +216,7 @@ class LLMFailoverManager:
         banner_lines = [
             "",
             "=" * 60,
-            "  Project Meridian — LLM Provider Startup Banner",
+            "  INTELLIX — LLM Provider Startup Banner",
             "=" * 60,
         ]
         if self.gemini_providers:

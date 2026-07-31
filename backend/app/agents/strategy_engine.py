@@ -1,8 +1,8 @@
-import logging
+﻿import logging
 from app.core.models import AudienceProfile, AdaptationStrategy
 from app.utils.checkpoints import CheckpointLogger
 
-logger = logging.getLogger("meridian.agents.strategy_engine")
+logger = logging.getLogger("intellix.agents.strategy_engine")
 
 def resolve_strategy(
     domain: str, 

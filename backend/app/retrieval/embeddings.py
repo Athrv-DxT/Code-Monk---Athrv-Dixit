@@ -1,8 +1,8 @@
-import logging
+﻿import logging
 from typing import List
 from sentence_transformers import SentenceTransformer
 
-logger = logging.getLogger("meridian.embeddings")
+logger = logging.getLogger("intellix.embeddings")
 
 _model = None
 

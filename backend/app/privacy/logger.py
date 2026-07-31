@@ -1,9 +1,9 @@
-from typing import List, Dict
+﻿from typing import List, Dict
 from app.privacy.recognizers import PIIDetection
 from app.config import settings
 import logging
 
-logger = logging.getLogger("meridian.privacy")
+logger = logging.getLogger("intellix.privacy")
 
 class PIILogger:
     @staticmethod

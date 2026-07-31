@@ -1,6 +1,6 @@
-# Project Meridian
+﻿# IntelliX
 
-Project Meridian is an enterprise-grade AI agent system built for the AI Agent track. It parses complex, high-stakes documents (administrative, legal, medical), extracts structured meaning graphs, persists them in Neo4j, simplifies/adapts them to different audience profiles, and audits the results for semantic drift using a Neo4j graph-based verifier.
+IntelliX is an enterprise-grade AI agent system built for the AI Agent track. It parses complex, high-stakes documents (administrative, legal, medical), extracts structured meaning graphs, persists them in Neo4j, simplifies/adapts them to different audience profiles, and audits the results for semantic drift using a Neo4j graph-based verifier.
 
 ---
 
@@ -87,7 +87,7 @@ Open [http://localhost:3000/](http://localhost:3000/) in your browser.
 
 ## Production Deployment
 
-Project Meridian is configured to easily deploy to low-resource hosted environments:
+IntelliX is configured to easily deploy to low-resource hosted environments:
 
 ### 1. Frontend (Vercel / Netlify)
 The frontend is a static React Single Page Application (SPA).
@@ -117,7 +117,7 @@ Executes the full pipeline for adaptation.
 curl -X POST "http://localhost:8000/api/v1/adapt" \
      -H "Content-Type: application/json" \
      -d '{
-       "content": "Pursuant to City Municipal Ordinance § 402.19, residents must grant safety access on August 15, 2026. Failure results in a fine of $150.00.",
+       "content": "Pursuant to City Municipal Ordinance Â§ 402.19, residents must grant safety access on August 15, 2026. Failure results in a fine of $150.00.",
        "audience_profile": {
          "role": "patient",
          "domain_familiarity": "novice",
@@ -184,46 +184,46 @@ Logs are stored in the mounted `./logs` directory:
 ## Directory Structure
 
 ```
-project-meridian/
-├── docker-compose.yml
-├── .env.example
-├── README.md
-├── backend/
-│   ├── Dockerfile
-│   ├── requirements.txt
-│   └── app/
-│       ├── main.py
-│       ├── config.py
-│       ├── api/
-│       │   ├── routes.py
-│       │   └── schemas.py
-│       ├── agents/
-│       │   ├── orchestrator.py
-│       │   ├── content_understanding.py
-│       │   ├── meaning_extractor.py
-│       │   ├── strategy_engine.py
-│       │   ├── rewriter.py
-│       │   └── verifier.py
-│       ├── llm/
-│       │   ├── router.py
-│       │   ├── gemini_client.py
-│       │   └── groq_client.py
-│       ├── graph/
-│       │   ├── neo4j_client.py
-│       │   └── schema.py
-│       ├── retrieval/
-│       │   ├── embeddings.py
-│       │   ├── bm25_index.py
-│       │   ├── hybrid_search.py
-│       │   └── tavily_client.py
-│       └── utils/
-│           ├── redaction.py
-│           └── checkpoints.py
-└── frontend/
-    ├── Dockerfile
-    ├── package.json
-    └── src/
-        ├── App.jsx
-        ├── index.css
-        └── main.jsx
+intellix/
+â”œâ”€â”€ docker-compose.yml
+â”œâ”€â”€ .env.example
+â”œâ”€â”€ README.md
+â”œâ”€â”€ backend/
+â”‚   â”œâ”€â”€ Dockerfile
+â”‚   â”œâ”€â”€ requirements.txt
+â”‚   â””â”€â”€ app/
+â”‚       â”œâ”€â”€ main.py
+â”‚       â”œâ”€â”€ config.py
+â”‚       â”œâ”€â”€ api/
+â”‚       â”‚   â”œâ”€â”€ routes.py
+â”‚       â”‚   â””â”€â”€ schemas.py
+â”‚       â”œâ”€â”€ agents/
+â”‚       â”‚   â”œâ”€â”€ orchestrator.py
+â”‚       â”‚   â”œâ”€â”€ content_understanding.py
+â”‚       â”‚   â”œâ”€â”€ meaning_extractor.py
+â”‚       â”‚   â”œâ”€â”€ strategy_engine.py
+â”‚       â”‚   â”œâ”€â”€ rewriter.py
+â”‚       â”‚   â””â”€â”€ verifier.py
+â”‚       â”œâ”€â”€ llm/
+â”‚       â”‚   â”œâ”€â”€ router.py
+â”‚       â”‚   â”œâ”€â”€ gemini_client.py
+â”‚       â”‚   â””â”€â”€ groq_client.py
+â”‚       â”œâ”€â”€ graph/
+â”‚       â”‚   â”œâ”€â”€ neo4j_client.py
+â”‚       â”‚   â””â”€â”€ schema.py
+â”‚       â”œâ”€â”€ retrieval/
+â”‚       â”‚   â”œâ”€â”€ embeddings.py
+â”‚       â”‚   â”œâ”€â”€ bm25_index.py
+â”‚       â”‚   â”œâ”€â”€ hybrid_search.py
+â”‚       â”‚   â””â”€â”€ tavily_client.py
+â”‚       â””â”€â”€ utils/
+â”‚           â”œâ”€â”€ redaction.py
+â”‚           â””â”€â”€ checkpoints.py
+â””â”€â”€ frontend/
+    â”œâ”€â”€ Dockerfile
+    â”œâ”€â”€ package.json
+    â””â”€â”€ src/
+        â”œâ”€â”€ App.jsx
+        â”œâ”€â”€ index.css
+        â””â”€â”€ main.jsx
 ```

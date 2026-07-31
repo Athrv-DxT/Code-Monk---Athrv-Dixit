@@ -1,4 +1,4 @@
-import uuid
+﻿import uuid
 import logging
 import time
 import asyncio
@@ -17,7 +17,7 @@ from app.voice.tts_piper import generate_tts
 from app.utils.translation_cache import translation_cache
 from app.llm.router import generate_response
 
-logger = logging.getLogger("meridian.orchestrator")
+logger = logging.getLogger("intellix.orchestrator")
 
 def translate_text(text: str, target_lang: str) -> str:
     """
@@ -58,7 +58,7 @@ async def run_pipeline(
     voice_narration: Optional[str] = None
 ) -> Dict[str, Any]:
     """
-    Orchestrates the entire Project Meridian pipeline asynchronously:
+    Orchestrates the entire INTELLIX pipeline asynchronously:
     1. PII Redaction/Masking.
     2. Parallel Content Classifier & Meaning Extraction (asyncio.gather).
     3. Neo4j Graph write (Background Thread).

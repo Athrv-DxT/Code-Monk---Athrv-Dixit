@@ -1,10 +1,10 @@
-import httpx
+﻿import httpx
 import json
 import logging
 from typing import Optional, Dict, Any
 from app.config import settings
 
-logger = logging.getLogger("meridian.groq")
+logger = logging.getLogger("intellix.groq")
 
 def call_groq(
     prompt: str, 

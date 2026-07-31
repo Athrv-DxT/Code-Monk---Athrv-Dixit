@@ -1,8 +1,8 @@
-import logging
+﻿import logging
 from typing import List, Dict, Any
 from rank_bm25 import BM25Okapi
 
-logger = logging.getLogger("meridian.bm25")
+logger = logging.getLogger("intellix.bm25")
 
 # Curated corpus of domain-specific glossary items
 GLOSSARY_CORPUS = [

@@ -1,4 +1,4 @@
-import logging
+﻿import logging
 import re
 from typing import Dict, Any, List, Optional, Generator
 from app.llm.router import generate_response
@@ -8,7 +8,7 @@ from app.retrieval.hybrid_search import hybrid_search
 from app.retrieval.tavily_client import search_tavily
 from app.utils.checkpoints import CheckpointLogger
 
-logger = logging.getLogger("meridian.agents.rewriter")
+logger = logging.getLogger("intellix.agents.rewriter")
 
 def run_rewriter(
     content: str,

@@ -1,24 +1,24 @@
-# Cloud Deployment Guide - Project Meridian
+﻿# Cloud Deployment Guide - IntelliX
 
-This guide describes how to deploy the Project Meridian stack (FastAPI Backend + React Frontend + Managed Neo4j Database) online for free using **Render**, **Vercel / Netlify**, and **Neo4j AuraDB**.
+This guide describes how to deploy the IntelliX stack (FastAPI Backend + React Frontend + Managed Neo4j Database) online for free using **Render**, **Vercel / Netlify**, and **Neo4j AuraDB**.
 
 ```
-  ┌────────────────────────────────────────────────────────┐
-  │                    React Frontend                      │
-  │                  (Vercel or Netlify)                   │
-  └───────────────────────────┬────────────────────────────┘
-                              │ HTTPS Request
-                              ▼
-  ┌────────────────────────────────────────────────────────┐
-  │                    FastAPI Backend                     │
-  │                        (Render)                        │
-  └───────────────────────────┬────────────────────────────┘
-                              │ Bolt Protocol
-                              ▼
-  ┌────────────────────────────────────────────────────────┐
-  │                     Neo4j Database                     │
-  │                    (Neo4j AuraDB)                      │
-  └────────────────────────────────────────────────────────┘
+  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+  â”‚                    React Frontend                      â”‚
+  â”‚                  (Vercel or Netlify)                   â”‚
+  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                              â”‚ HTTPS Request
+                              â–¼
+  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+  â”‚                    FastAPI Backend                     â”‚
+  â”‚                        (Render)                        â”‚
+  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                              â”‚ Bolt Protocol
+                              â–¼
+  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+  â”‚                     Neo4j Database                     â”‚
+  â”‚                    (Neo4j AuraDB)                      â”‚
+  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ---
@@ -29,9 +29,9 @@ Initialize git, add files, and push your repository to GitHub:
 ```bash
 git init
 git add .
-git commit -m "feat: project meridian initial structure"
+git commit -m "feat: IntelliX initial structure"
 # Create a new repository on github.com and link it
-git remote add origin https://github.com/yourusername/project-meridian.git
+git remote add origin https://github.com/yourusername/intellix.git
 git branch -M main
 git push -u origin main
 ```
@@ -67,7 +67,7 @@ Render builds and hosts Web Services directly from your repository.
    - `NEO4J_USER`: `neo4j`
    - `NEO4J_PASSWORD`: Your Neo4j Aura Password.
 6. Click **Deploy**. Render will install requirements, pre-download the BGE embedding model, and launch the service.
-7. Once deployed, copy your Render Web Service URL (e.g. `https://meridian-backend.onrender.com`).
+7. Once deployed, copy your Render Web Service URL (e.g. `https://intellix-backend.onrender.com`).
 
 ---
 

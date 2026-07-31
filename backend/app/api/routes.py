@@ -1,4 +1,4 @@
-import os
+﻿import os
 import shutil
 import logging
 import tempfile
@@ -13,7 +13,7 @@ from app.config import settings
 import httpx
 import re
 
-logger = logging.getLogger("meridian.api")
+logger = logging.getLogger("intellix.api")
 router = APIRouter(prefix="/api/v1")
 
 @router.post("/adapt")

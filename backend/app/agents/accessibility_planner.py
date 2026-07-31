@@ -1,4 +1,4 @@
-import json
+﻿import json
 import logging
 from typing import Dict, Any
 from app.llm.router import generate_response
@@ -6,7 +6,7 @@ from app.core.prompts import ACCESSIBILITY_PLANNER_SYSTEM
 from app.core.models import StructuredMeaningRepresentation, AudienceProfile
 from app.utils.checkpoints import CheckpointLogger
 
-logger = logging.getLogger("meridian.agents.accessibility_planner")
+logger = logging.getLogger("intellix.agents.accessibility_planner")
 
 def plan_accessibility(
     content: str,

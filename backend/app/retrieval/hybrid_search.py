@@ -1,10 +1,10 @@
-import logging
+﻿import logging
 import numpy as np
 from typing import List, Dict, Any
 from app.retrieval.embeddings import get_embedding, get_embeddings
 from app.retrieval.bm25_index import bm25_searcher, GLOSSARY_CORPUS
 
-logger = logging.getLogger("meridian.hybrid_search")
+logger = logging.getLogger("intellix.hybrid_search")
 
 # Globals to cache corpus embeddings
 _corpus_embeddings = None

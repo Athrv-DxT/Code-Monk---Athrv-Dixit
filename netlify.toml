@@ -1,5 +1,5 @@
-# ==============================================================================
-# PROJECT MERIDIAN - NETLIFY CONFIGURATION
+﻿# ==============================================================================
+# INTELLIX - NETLIFY CONFIGURATION
 # ==============================================================================
 
 [build]
@@ -13,7 +13,7 @@
 [build.environment]
   NODE_VERSION = "18"
 
-# SPA fallback — redirect all routes to index.html
+# SPA fallback â€” redirect all routes to index.html
 [[redirects]]
   from   = "/*"
   to     = "/index.html"

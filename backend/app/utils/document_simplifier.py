@@ -1,4 +1,4 @@
-"""
+﻿"""
 document_simplifier.py
 Pure-Python accessibility formatter that produces structured simplified output
 from raw document text when all LLM providers are unavailable.
@@ -8,7 +8,7 @@ import re
 import logging
 from typing import Dict, Any, List, Optional
 
-logger = logging.getLogger("meridian.simplifier")
+logger = logging.getLogger("intellix.simplifier")
 
 # ── helpers ────────────────────────────────────────────────────────────────────
 

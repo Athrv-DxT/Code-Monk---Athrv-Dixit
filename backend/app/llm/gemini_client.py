@@ -1,10 +1,10 @@
-import httpx
+﻿import httpx
 import json
 import logging
 from typing import Optional, Dict, Any
 from app.config import settings
 
-logger = logging.getLogger("meridian.gemini")
+logger = logging.getLogger("intellix.gemini")
 
 def call_gemini(
     prompt: str, 

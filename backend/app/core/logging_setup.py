@@ -1,4 +1,4 @@
-import logging
+﻿import logging
 import sys
 import os
 from app.config import settings
@@ -33,7 +33,7 @@ def setup_logging():
     logging.getLogger("httpx").setLevel(logging.WARNING)
     logging.getLogger("sentence_transformers").setLevel(logging.WARNING)
     
-    logger = logging.getLogger("meridian")
+    logger = logging.getLogger("intellix")
     logger.info("Logging configured successfully.")
     return logger
 

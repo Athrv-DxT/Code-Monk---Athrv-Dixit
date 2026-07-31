@@ -1,4 +1,4 @@
-import uvicorn
+﻿import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import router
@@ -10,7 +10,7 @@ from app.core.logging_setup import setup_logging
 logger = setup_logging()
 
 app = FastAPI(
-    title="Project Meridian API",
+    title="INTELLIX API",
     description="Enterprise-grade document simplification and semantic representation pipeline.",
     version="1.0.0"
 )
@@ -29,7 +29,7 @@ app.include_router(router)
 
 @app.on_event("startup")
 def on_startup():
-    logger.info("Project Meridian API booting up...")
+    logger.info("INTELLIX API booting up...")
     # Initialize Neo4j constraints
     init_db()
     # Initialize LLM failover manager and print startup banner
@@ -39,7 +39,7 @@ def on_startup():
 @app.get("/")
 def read_root():
     return {
-        "name": "Project Meridian API",
+        "name": "INTELLIX API",
         "status": "online",
         "description": "Auditable document adaptation and semantic representation pipeline."
     }

@@ -1,4 +1,4 @@
-from typing import List, Set
+﻿from typing import List, Set
 from app.privacy.recognizers import BaseRecognizer, PIIDetection, get_all_recognizers
 from app.config import settings
 
@@ -36,7 +36,7 @@ class PIIDetector:
             except Exception as e:
                 # Log error but don't crash the pipeline
                 import logging
-                logger = logging.getLogger("meridian.privacy.detector")
+                logger = logging.getLogger("intellix.privacy.detector")
                 logger.error(f"Error running recognizer {recognizer.name}: {e}")
 
         # Resolve overlaps: sort by match span length (descending) then score (descending)

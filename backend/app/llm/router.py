@@ -1,11 +1,11 @@
-import json
+﻿import json
 import logging
 from typing import Optional, Dict, Any, Tuple
 from app.llm.gemini_client import call_gemini
 from app.llm.groq_client import call_groq
 from app.config import settings
 
-logger = logging.getLogger("meridian.router")
+logger = logging.getLogger("intellix.router")
 
 def generate_response(
     prompt: str, 

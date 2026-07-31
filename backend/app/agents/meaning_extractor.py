@@ -1,4 +1,4 @@
-import json
+﻿import json
 import logging
 from typing import Dict, Any
 from app.llm.router import generate_response
@@ -6,7 +6,7 @@ from app.core.prompts import MEANING_EXTRACTION_SYSTEM
 from app.core.models import StructuredMeaningRepresentation, MeaningNode, MeaningRelationship
 from app.utils.checkpoints import CheckpointLogger
 
-logger = logging.getLogger("meridian.agents.meaning_extractor")
+logger = logging.getLogger("intellix.agents.meaning_extractor")
 
 def extract_meaning(
     content: str, 

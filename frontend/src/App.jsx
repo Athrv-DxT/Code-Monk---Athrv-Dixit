@@ -27,7 +27,7 @@ const PROFILE_PRESETS = [
 
 const TRANSLATIONS = {
   en: {
-    title: "Project Meridian",
+    title: "IntelliX",
     subtitle: "Faithful Semantic Adaptation & Audit Graph",
     sourceDoc: "Source Document",
     presets: "Load Presets for Testing:",
@@ -103,7 +103,7 @@ const TRANSLATIONS = {
     gapsTitle: "कमियां और अनिश्चितताएं"
   },
   es: {
-    title: "Proyecto Meridian",
+    title: "IntelliX",
     subtitle: "Adaptación Semántica y Gráfico de Auditoría",
     sourceDoc: "Documento de Origen",
     presets: "Cargar muestras de prueba:",
@@ -141,7 +141,7 @@ const TRANSLATIONS = {
     gapsTitle: "Brechas y omisiones"
   },
   fr: {
-    title: "Projet Meridian",
+    title: "IntelliX",
     subtitle: "Adaptation Sémantique & Graphe d'Audit",
     sourceDoc: "Document Source",
     presets: "Charger des échantillons de test:",

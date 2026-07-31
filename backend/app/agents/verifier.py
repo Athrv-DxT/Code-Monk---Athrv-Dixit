@@ -1,4 +1,4 @@
-import json
+﻿import json
 import logging
 from typing import Dict, Any
 from app.llm.router import generate_response
@@ -6,7 +6,7 @@ from app.core.prompts import VERIFIER_SYSTEM
 from app.core.models import StructuredMeaningRepresentation
 from app.utils.checkpoints import CheckpointLogger
 
-logger = logging.getLogger("meridian.agents.verifier")
+logger = logging.getLogger("intellix.agents.verifier")
 
 def run_verifier(
     adapted_content: str,

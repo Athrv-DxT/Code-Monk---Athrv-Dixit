@@ -1,10 +1,10 @@
-# ==============================================================================
-# PROJECT MERIDIAN - RENDER BLUEPRINT
+﻿# ==============================================================================
+# INTELLIX - RENDER BLUEPRINT
 # ==============================================================================
 
 services:
   - type: web
-    name: meridian-backend
+    name: intellix-backend
     env: python
     region: oregon
     plan: free
@@ -21,8 +21,8 @@ services:
       - key: DEMO_OFFLINE_MODE
         value: "false"
 
-      # ── Gemini Keys (Round Robin) ──────────────────────────────────────────
-      # Set these manually in the Render dashboard → Environment tab
+      # â”€â”€ Gemini Keys (Round Robin) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      # Set these manually in the Render dashboard â†’ Environment tab
       - key: GEMINI_API_KEY
         sync: false
       - key: GEMINI_API_KEY_1
@@ -32,15 +32,15 @@ services:
       - key: GEMINI_API_KEY_3
         sync: false
 
-      # ── Groq Fallback ──────────────────────────────────────────────────────
+      # â”€â”€ Groq Fallback â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
       - key: GROQ_API_KEY
         sync: false
 
-      # ── Optional (leave blank if not using) ───────────────────────────────
+      # â”€â”€ Optional (leave blank if not using) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
       - key: TAVILY_API_KEY
         sync: false
 
-      # ── Neo4j (leave blank to skip graph - runs fine without it) ──────────
+      # â”€â”€ Neo4j (leave blank to skip graph - runs fine without it) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
       - key: NEO4J_URI
         sync: false
       - key: NEO4J_USER
