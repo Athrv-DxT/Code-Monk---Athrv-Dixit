@@ -47,7 +47,8 @@ def run_rewriter(
         "fr": "French",
         "de": "German"
     }
-    target_language = lang_map.get(profile.preferred_language.lower(), profile.preferred_language or "English")
+    effective_lang = target_language or profile.preferred_language or "en"
+    target_language = lang_map.get(effective_lang.lower(), effective_lang or "English")
     
     if planner_plan:
         import json
@@ -137,13 +138,9 @@ GROUNDING CONTEXT (OPTIONAL TERMINOLOGY EXPLANATIONS):
         if explanation_section_match:
             explanations_text = explanation_section_match.group(0).strip()
             
-        checkpoint_logger.complete_stage(
-            "REWRITE_COMPLETED",
-            output_summary=f"Length: {len(adapted_content)} chars",
-            gaps_detected=gaps_list,
-            model=provider
-        )
-        
+        if "gap" in adapted_content.lower() or "missing" in adapted_content.lower():
+            gaps_list.append("Potential information gap noted during rewriting.")
+            
         return {
             "adapted_content": adapted_content,
             "gaps": gaps_list,
@@ -158,7 +155,7 @@ GROUNDING CONTEXT (OPTIONAL TERMINOLOGY EXPLANATIONS):
         try:
             from app.utils.document_simplifier import simplify_document
             effective_lang = target_language or profile.preferred_language or "en"
-            lang_display = lang_map.get(effective_lang.lower(), effective_lang)
+            lang_display = LANG_MAP.get(effective_lang.lower(), effective_lang)
             simplified = simplify_document(content, profile.role, lang_display)
             logger.info(f"[Rewriter] Rule-based simplifier produced fallback accessibility output in {lang_display}.")
         except Exception as e2:
