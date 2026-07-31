@@ -1,4 +1,4 @@
-﻿import logging
+import logging
 import re
 from typing import Dict, Any, List, Optional, Generator
 from app.llm.router import generate_response
@@ -18,7 +18,8 @@ def run_rewriter(
     enable_external_lookup: bool,
     run_id: str,
     checkpoint_logger: CheckpointLogger,
-    planner_plan: Optional[Dict[str, Any]] = None
+    planner_plan: Optional[Dict[str, Any]] = None,
+    target_language: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Runs the Rewrite phase. Consumes planner_plan JSON if provided, otherwise falls back to
@@ -156,9 +157,10 @@ GROUNDING CONTEXT (OPTIONAL TERMINOLOGY EXPLANATIONS):
         # LLM unavailable — use rule-based simplifier so the output is still useful
         try:
             from app.utils.document_simplifier import simplify_document
-            lang_display = lang_map.get(profile.preferred_language.lower(), "English")
+            effective_lang = target_language or profile.preferred_language or "en"
+            lang_display = lang_map.get(effective_lang.lower(), effective_lang)
             simplified = simplify_document(content, profile.role, lang_display)
-            logger.info("[Rewriter] Rule-based simplifier produced fallback accessibility output.")
+            logger.info(f"[Rewriter] Rule-based simplifier produced fallback accessibility output in {lang_display}.")
         except Exception as e2:
             logger.error(f"Rule-based simplifier also failed: {e2}")
             simplified = content

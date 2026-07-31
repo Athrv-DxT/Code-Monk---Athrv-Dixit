@@ -1,4 +1,4 @@
-﻿import uuid
+import uuid
 import logging
 import time
 import asyncio
@@ -192,7 +192,8 @@ async def run_pipeline(
                 enable_external_lookup=enable_external,
                 run_id=run_id,
                 checkpoint_logger=checkpoint_logger,
-                planner_plan=planner_plan
+                planner_plan=planner_plan,
+                target_language=profile.preferred_language
             )
             
             adapted_text = rewrite_result["adapted_content"]
