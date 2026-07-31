@@ -1,0 +1,20 @@
+# ==============================================================================
+# PROJECT MERIDIAN - NETLIFY CONFIGURATION
+# ==============================================================================
+
+[build]
+  # Directory containing the frontend source
+  base    = "frontend"
+  # Vite build output directory
+  publish = "dist"
+  # Build command
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+# SPA fallback — redirect all routes to index.html
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200

@@ -1,27 +1,46 @@
 # ==============================================================================
-# PROJECT MERIDIAN - RENDER BLUEPRINT (INFRASTRUCTURE-AS-CODE)
+# PROJECT MERIDIAN - RENDER BLUEPRINT
 # ==============================================================================
 
 services:
-  # 1. FastAPI Python Web Service (Backend)
   - type: web
     name: meridian-backend
     env: python
+    region: oregon
+    plan: free
     rootDir: backend
     buildCommand: pip install -r requirements.txt && python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('BAAI/bge-small-en-v1.5')"
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11.0
+        value: "3.11.0"
       - key: ENV
         value: production
-      # These variables must be populated manually in the Render dashboard
+      - key: DISABLE_LOCAL_MODELS
+        value: "false"
+      - key: DEMO_OFFLINE_MODE
+        value: "false"
+
+      # ── Gemini Keys (Round Robin) ──────────────────────────────────────────
+      # Set these manually in the Render dashboard → Environment tab
       - key: GEMINI_API_KEY
         sync: false
+      - key: GEMINI_API_KEY_1
+        sync: false
+      - key: GEMINI_API_KEY_2
+        sync: false
+      - key: GEMINI_API_KEY_3
+        sync: false
+
+      # ── Groq Fallback ──────────────────────────────────────────────────────
       - key: GROQ_API_KEY
         sync: false
+
+      # ── Optional (leave blank if not using) ───────────────────────────────
       - key: TAVILY_API_KEY
         sync: false
+
+      # ── Neo4j (leave blank to skip graph - runs fine without it) ──────────
       - key: NEO4J_URI
         sync: false
       - key: NEO4J_USER
