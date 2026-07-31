@@ -1,4 +1,4 @@
-﻿# ==============================================================================
+# ==============================================================================
 # INTELLIX - RENDER BLUEPRINT
 # ==============================================================================
 
@@ -9,7 +9,7 @@ services:
     region: oregon
     plan: free
     rootDir: backend
-    buildCommand: pip install -r requirements.txt && python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('BAAI/bge-small-en-v1.5')"
+    buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHON_VERSION
@@ -17,7 +17,7 @@ services:
       - key: ENV
         value: production
       - key: DISABLE_LOCAL_MODELS
-        value: "false"
+        value: "true"
       - key: DEMO_OFFLINE_MODE
         value: "false"
 

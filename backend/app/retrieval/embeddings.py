@@ -1,6 +1,5 @@
-﻿import logging
+import logging
 from typing import List
-from sentence_transformers import SentenceTransformer
 
 logger = logging.getLogger("intellix.embeddings")
 
@@ -9,11 +8,12 @@ _model = None
 from app.config import settings
 import hashlib
 
-def get_model() -> SentenceTransformer:
+def get_model():
     global _model
     if _model is None:
         try:
             logger.info("Initializing BGE-small-en-v1.5 embedding model...")
+            from sentence_transformers import SentenceTransformer
             # Loads from Hugging Face cache (pre-downloaded during docker build)
             _model = SentenceTransformer('BAAI/bge-small-en-v1.5')
             logger.info("BGE model loaded successfully.")
