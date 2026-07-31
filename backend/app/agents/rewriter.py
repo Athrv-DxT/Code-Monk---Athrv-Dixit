@@ -10,6 +10,13 @@ from app.utils.checkpoints import CheckpointLogger
 
 logger = logging.getLogger("intellix.agents.rewriter")
 
+LANG_MAP = {
+    "hi": "Hindi", "bn": "Bengali", "mr": "Marathi", "te": "Telugu",
+    "ta": "Tamil", "gu": "Gujarati", "kn": "Kannada", "ml": "Malayalam",
+    "pa": "Punjabi", "or": "Odia", "ur": "Urdu", "es": "Spanish",
+    "fr": "French", "en": "English"
+}
+
 def run_rewriter(
     content: str,
     representation: StructuredMeaningRepresentation,
